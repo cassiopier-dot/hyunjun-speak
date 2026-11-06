@@ -23,7 +23,7 @@ img{max-width:100%}
 <title>현준이 맞춤 말하기 연습</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
 <style>
-/* Layout: 한 화면에 한 가지. 홈(묶음 선택) → 상황 4단계(보기·기분·말 고르기·말해보기) → 칭찬. 아빠 코너는 따로. */
+/* Layout: 한 화면에 한 가지. 홈(묶음 선택) → 상황 4단계(보기·기분·말 고르기·말해보기) → 칭찬. {P} 코너는 따로. */
 :root{
   --bg:#EEF2F0; --surface:#FFFFFF; --ink:#17302B; --muted:#5A716B; --line:#D2DDD9;
   --teal:#1C7466; --teal-soft:#D7ECE7; --gold:#C98A0B; --gold-soft:#FBEFD3;
@@ -107,6 +107,11 @@ textarea{width:100%;min-height:140px;border:2px solid var(--line);border-radius:
 .log{display:flex;flex-direction:column;gap:8px}
 .log div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.95rem}
 @media (max-width:440px){h1{font-size:1.6rem}.say-list{grid-template-columns:1fr}.scene svg{width:64px;height:64px}}
+.gear{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.9rem}
+.setbox{background:var(--surface);border:2px solid var(--teal);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.setbox .row button{background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
+.setbox .row button[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.setbox input{border:2px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg);width:9em}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -115,6 +120,27 @@ textarea{width:100%;min-height:140px;border:2px solid var(--line);border-radius:
 <div class="wrap" id="app"></div>
 
 <script>
+
+/* ---------- 설정: 함께하는 사람 (웹에서 바로 바꿀 수 있음) ---------- */
+const PKEY="hj-parent";
+function P(){try{return localStorage.getItem(PKEY)||"엄마"}catch(e){return "엄마"}}
+function setP(v){try{localStorage.setItem(PKEY,v)}catch(e){}}
+const sub=s=>String(s).replace(/\{P\}/g,P());
+(()=>{const d=Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML");
+  Object.defineProperty(Element.prototype,"innerHTML",{set(v){d.set.call(this,sub(v))},get(){return d.get.call(this)},configurable:true})})();
+function settingsUI(host,after){
+  const box=document.createElement("div");box.className="setbox";box.hidden=true;
+  const cur=P(),preset=["엄마","아빠"].includes(cur);
+  box.innerHTML=`<b>현준이와 같이 연습하는 사람</b><p class="muted" style="font-size:.9rem">앱 안의 호칭이 전부 바뀌어요. 두 앱에 같이 적용돼요.</p>
+   <div class="row"><button type="button" data-p="엄마" aria-pressed="${cur==="엄마"}">엄마</button><button type="button" data-p="아빠" aria-pressed="${cur==="아빠"}">아빠</button>
+   <input id="pcustom" type="text" placeholder="직접 입력 (예: 할머니)" value="${preset?"":cur.replace(/"/g,"")}"><button type="button" id="pok">적용</button></div>`;
+  host.appendChild(box);
+  const gear=document.createElement("button");gear.className="gear";gear.type="button";gear.textContent="설정";
+  gear.onclick=()=>{box.hidden=!box.hidden};
+  (host.querySelector(".top")||host).appendChild(gear);
+  box.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{setP(b.dataset.p);after()});
+  box.querySelector("#pok").onclick=()=>{const v=box.querySelector("#pcustom").value.trim();if(v){setP(v);after()}};
+}
 /* ---------- 그림 ---------- */
 const C="currentColor";
 const ICONS={
@@ -159,28 +185,28 @@ function rich(t){return esc(t).replace(/\[\[(.+?)\]\]/g,(_,w)=>`<button class="w
 /* ---------- 현준이 상황 묶음 ---------- */
 const PACKS=[
  {id:"errand",title:"심부름 사건",note:"이번 주 실제로 있었던 일",ico:"trash",isNew:true,sits:[
-  {ico:"tired",scene:"새 학원 테스트를 보고 왔어. 머리가 너무 피곤해. 그런데 아빠가 쓰레기 버리기 심부름을 시켰어.",
+  {ico:"tired",scene:"새 학원 테스트를 보고 왔어. 머리가 너무 피곤해. 그런데 {P}가 쓰레기 버리기 심부름을 시켰어.",
    feelHint:"이럴 때는 지치거나 불안할 수 있어.",
-   q:"아빠한테 뭐라고 말하면 좋을까?",
-   o:["아무 말 안 하고 대충 한다","“아빠, 나 오늘 너무 피곤해. 하나씩 천천히 말해줘.”","“싫어! 안 해!”"],a:1,
-   why:"피곤하다고 먼저 말하면, 아빠가 현준이 상태를 알 수 있어. 그러면 아빠도 더 천천히 말해줄 수 있어.",
-   phrase:"아빠, 나 오늘 너무 피곤해. 하나씩 천천히 말해줘."},
-  {ico:"ask",scene:"아빠가 [[분리수거]] 심부름을 말해줬어. 그런데 뭘 어디에 버려야 하는지 헷갈려.",
+   q:"{P}한테 뭐라고 말하면 좋을까?",
+   o:["아무 말 안 하고 대충 한다","“{P}, 나 오늘 너무 피곤해. 하나씩 천천히 말해줘.”","“싫어! 안 해!”"],a:1,
+   why:"피곤하다고 먼저 말하면, {P}가 현준이 상태를 알 수 있어. 그러면 {P}도 더 천천히 말해줄 수 있어.",
+   phrase:"{P}, 나 오늘 너무 피곤해. 하나씩 천천히 말해줘."},
+  {ico:"ask",scene:"{P}가 [[분리수거]] 심부름을 말해줬어. 그런데 뭘 어디에 버려야 하는지 헷갈려.",
    feelHint:"헷갈리면 불안할 수 있어.",
    q:"어떻게 하면 좋을까?",
    o:["대충 아무 데나 버린다","“이거 어디에 버리면 돼? 한 번만 다시 말해줘.”","그냥 안 하고 방에 들어간다"],a:1,
    why:"[[되묻기]]는 똑똑한 사람들이 쓰는 방법이야. 한 번 물어보면 실수가 확 줄어.",
    phrase:"이거 어디에 버리면 돼? 한 번만 다시 말해줘."},
-  {ico:"heart",scene:"심부름을 실수했어. 아빠가 많이 화를 냈어. 마음이 안 좋아.",
+  {ico:"heart",scene:"심부름을 실수했어. {P}가 많이 화를 냈어. 마음이 안 좋아.",
    feelHint:"서운함, 억울함, 창피함, 무서움이 한꺼번에 올 수 있어. 다 괜찮은 기분이야.",
    q:"나중에 마음이 조금 가라앉으면 뭐라고 말할까?",
-   o:["“아빠 미워!” 하고 문을 쾅 닫는다","“아빠, 아까 혼나서 서운했어. 나 그날 진짜 힘들었어.”","아무한테도 말 안 하고 참는다"],a:1,
-   why:"참으면 마음에 쌓였다가 짜증으로 나와. 기분을 말로 하면 아빠도 현준이 마음을 알 수 있어.",
-   phrase:"아빠, 아까 혼나서 서운했어. 나 그날 진짜 힘들었어."},
-  {ico:"heart",scene:"다음 날 아빠가 “어제 화내서 미안해. 테스트 때문에 피곤했지?”라고 [[사과]]했어.",
+   o:["“{P} 미워!” 하고 문을 쾅 닫는다","“{P}, 아까 혼나서 서운했어. 나 그날 진짜 힘들었어.”","아무한테도 말 안 하고 참는다"],a:1,
+   why:"참으면 마음에 쌓였다가 짜증으로 나와. 기분을 말로 하면 {P}도 현준이 마음을 알 수 있어.",
+   phrase:"{P}, 아까 혼나서 서운했어. 나 그날 진짜 힘들었어."},
+  {ico:"heart",scene:"다음 날 {P}가 “어제 화내서 미안해. 테스트 때문에 피곤했지?”라고 [[사과]]했어.",
    feelHint:"마음이 풀리거나, 아직 조금 서운할 수도 있어.",
    q:"어떻게 대답하면 좋을까?",
-   o:["“몰라.” 하고 가 버린다","“괜찮아. 나도 다음엔 헷갈리면 물어볼게.”","“아빠가 잘못했지!” 하고 계속 화낸다"],a:1,
+   o:["“몰라.” 하고 가 버린다","“괜찮아. 나도 다음엔 헷갈리면 물어볼게.”","“{P}가 잘못했지!” 하고 계속 화낸다"],a:1,
    why:"사과를 받아주면 다시 사이가 좋아져. 아직 조금 서운하면 “조금 서운했어, 그래도 괜찮아”라고 해도 돼.",
    phrase:"괜찮아. 나도 다음엔 헷갈리면 물어볼게."}]},
  {id:"friends",title:"놀이터와 학교 친구",note:"요즘 친구 관계",ico:"swing",sits:[
@@ -227,7 +253,7 @@ const app=document.getElementById("app");
 
 /* ---------- 소리로 읽기 ---------- */
 const canSpeak=(()=>{try{return "speechSynthesis" in window&&typeof SpeechSynthesisUtterance!=="undefined"}catch(e){return false}})();
-function speak(t){if(!canSpeak)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/\[\[|\]\]/g,"").replace(/[“”]/g,""));u.lang="ko-KR";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function speak(t){if(!canSpeak)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sub(t).replace(/\[\[|\]\]/g,"").replace(/[“”]/g,""));u.lang="ko-KR";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
 const speakBtn=(id)=>canSpeak?`<button class="speak" id="${id}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9q2 3 0 6M19 6q4 6 0 12"/></svg>듣기</button>`:"";
 
 function starCount(){return Object.values(st.done).reduce((a,v)=>a+v,0)}
@@ -236,8 +262,9 @@ function starCount(){return Object.values(st.done).reduce((a,v)=>a+v,0)}
 let view="kid";
 function home(){
  app.innerHTML=`<header class="top"><div><p class="muted">현준이 맞춤 · 하루 한두 개</p><h1>현준이 말하기 연습</h1></div><span class="pill">★ ${starCount()}</span></header>
- <div class="nav" role="tablist"><button role="tab" aria-selected="${view==="kid"}" data-v="kid">현준이 연습</button><button role="tab" aria-selected="${view==="dad"}" data-v="dad">아빠 코너</button></div>
+ <div class="nav" role="tablist"><button role="tab" aria-selected="${view==="kid"}" data-v="kid">현준이 연습</button><button role="tab" aria-selected="${view==="dad"}" data-v="dad">{P} 코너</button></div>
  <div id="body"></div>`;
+ settingsUI(app,home);
  app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;home()});
  view==="kid"?kidHome(app.querySelector("#body")):dadHome(app.querySelector("#body"));
  app.insertAdjacentHTML("beforeend",'<p class="xlink"><a href="peers/">12회기 친구 기술 연습장 →</a></p>');
@@ -254,7 +281,7 @@ let R=null;
 function run(pid,i){R={p:PACKS.find(x=>x.id===pid),i,step:0,feel:null,tried:false,said:false};step();window.scrollTo(0,0)}
 function wordHandlers(root){root.querySelectorAll(".word").forEach(w=>w.onclick=()=>{
  const n=w.parentElement.querySelector(".def");if(n){n.remove();return}
- const d=document.createElement("p");d.className="def";d.style.marginTop="6px";d.textContent=`${w.dataset.w}: ${WORDS[w.dataset.w]||""}`;w.parentElement.appendChild(d)})}
+ const d=document.createElement("p");d.className="def";d.style.marginTop="6px";d.textContent=sub(`${w.dataset.w}: ${WORDS[w.dataset.w]||""}`);w.parentElement.appendChild(d)})}
 function frame(inner){
  const s=R.p.sits[R.i];
  app.innerHTML=`<button class="back" id="bk">← 처음으로</button>
@@ -297,7 +324,7 @@ function step(){
   <div class="own"><label for="own">내 말로 바꿔도 돼 (선택)</label><input id="own" type="text" value="${esc(own)}" placeholder="${esc(s.phrase)}"></div>
   <div class="row"><button class="btn" id="said">소리 내서 말해봤어</button></div>`);
   const sp=app.querySelector("#sp");if(sp)sp.onclick=()=>speak(app.querySelector("#own").value||s.phrase);
-  app.querySelector("#own").oninput=e=>{st.own[k]=e.target.value.trim();save();app.querySelector(".phrase").textContent=e.target.value.trim()||s.phrase};
+  app.querySelector("#own").oninput=e=>{st.own[k]=e.target.value.trim();save();app.querySelector(".phrase").textContent=sub(e.target.value.trim()||s.phrase)};
   app.querySelector("#said").onclick=()=>{const n=2+(st.own[k]?1:0);st.done[k]=Math.max(st.done[k]||0,Math.min(n,3));save();finish(n)};
  }
 }
@@ -312,11 +339,11 @@ function finish(n){
  app.querySelector("#hm").onclick=home;
 }
 
-/* ---------- 아빠 코너 ---------- */
+/* ---------- {P} 코너 ---------- */
 function dadHome(el){
  el.innerHTML=`<div class="parent">
  <div class="tipbox"><h3>이번 주: 심부름 사건 풀기</h3><ol>
-  <li>현준이에게 먼저 짧게 사과해 주세요. “그날 테스트 보고 와서 피곤했지? 아빠가 화를 너무 많이 냈어. 미안해.”</li>
+  <li>현준이에게 먼저 짧게 사과해 주세요. “그날 테스트 보고 와서 피곤했지? {P}가 화를 너무 많이 냈어. 미안해.”</li>
   <li>그다음 ‘심부름 사건’ 3번, 4번 상황을 같이 해 보세요. 현준이가 서운했던 마음을 말로 꺼내는 연습이에요.</li>
   <li>앞으로 심부름은 한 번에 하나만, 끝나고 “뭐 하기로 했는지 말해볼래?”로 확인해 주세요.</li>
   <li>테스트·학원이 많은 날은 심부름을 줄이거나 아주 단순한 것만 주세요.</li></ol></div>
@@ -326,9 +353,9 @@ function dadHome(el){
   <div class="no">“왜 또 실수했어?”</div><div>“어디가 헷갈렸어? 같이 보자.”</div></div></div>
  <div class="card"><h3>같이 할 때 약속</h3><ul style="margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px">
   <li>하루 한두 상황, 10분 이내로 끝내기</li><li>점수를 확인하기보다 옆에서 같이 하기</li>
-  <li>놀림 역할극이 끝나면 꼭 “아빠는 현준이 편이야”로 마무리하기</li><li>기분 고르기에는 정답이 없어요. 어떤 기분이든 받아주세요.</li></ul></div>
+  <li>놀림 역할극이 끝나면 꼭 “{P}는 현준이 편이야”로 마무리하기</li><li>기분 고르기에는 정답이 없어요. 어떤 기분이든 받아주세요.</li></ul></div>
  <div class="card"><h3>이번 주 있었던 일</h3><p class="muted" style="font-size:.95rem">짧게 적어 두고, 다음에 Claude에게 이 내용을 보여주면 현준이 맞춤 상황으로 만들어 드려요. 이 기기에만 저장돼요.</p>
-  <textarea id="note" placeholder="예: 11/4 쓰레기 심부름 실수, 아빠가 크게 화냄. 그날 새 수학학원 테스트로 많이 지쳐 있었음."></textarea>
+  <textarea id="note" placeholder="예: 11/4 쓰레기 심부름 실수, {P}가 크게 화냄. 그날 새 수학학원 테스트로 많이 지쳐 있었음."></textarea>
   <div class="row"><button class="btn" id="add">저장</button><button class="btn ghost" id="cp">전체 복사</button></div><p id="msg" class="muted" style="font-size:.9rem"></p>
   <div class="log" id="log"></div></div>
  </div>`;
