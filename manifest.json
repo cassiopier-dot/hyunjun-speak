@@ -1,0 +1,17 @@
+{
+  "name": "현준이 맞춤 말하기 연습",
+  "short_name": "말하기 연습",
+  "description": "현준이의 실제 생활 상황으로 기분 고르기, 좋은 말 고르기, 소리 내서 말하기를 연습하는 앱",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EEF2F0",
+  "theme_color": "#1C7466",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

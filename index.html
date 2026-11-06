@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1C7466">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+.install{position:fixed;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom,0px));background:var(--surface);border:2px solid var(--teal);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:20}
+.install p{font-size:.95rem}
+.offline{font-size:.8rem;color:var(--muted);text-align:center}
+</style>
+<title>현준이 맞춤 말하기 연습</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 한 화면에 한 가지. 홈(묶음 선택) → 상황 4단계(보기·기분·말 고르기·말해보기) → 칭찬. 아빠 코너는 따로. */
+:root{
+  --bg:#EEF2F0; --surface:#FFFFFF; --ink:#17302B; --muted:#5A716B; --line:#D2DDD9;
+  --teal:#1C7466; --teal-soft:#D7ECE7; --gold:#C98A0B; --gold-soft:#FBEFD3;
+  --soft:#F3E7D6; --soft-line:#D9B888;
+  --display:"Jua","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1B19; --surface:#172725; --ink:#E4EEEA; --muted:#94ABA5; --line:#2A3E3A;
+  --teal:#4DBBA8; --teal-soft:#1D3833; --gold:#F0B437; --gold-soft:#3A2F14;
+  --soft:#33291B; --soft-line:#7A6240; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1B19; --surface:#172725; --ink:#E4EEEA; --muted:#94ABA5; --line:#2A3E3A;
+  --teal:#4DBBA8; --teal-soft:#1D3833; --gold:#F0B437; --gold-soft:#3A2F14;
+  --soft:#33291B; --soft-line:#7A6240; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;line-height:1.3;text-wrap:balance}
+h1{font-size:2rem} h2{font-size:1.6rem} h3{font-size:1.25rem}
+p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.muted{color:var(--muted)}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.pill{font-family:var(--display);background:var(--gold-soft);padding:6px 14px;border-radius:999px;font-variant-numeric:tabular-nums}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nav button{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:10px;font-family:var(--display);font-size:1.1rem}
+.nav button[aria-selected="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.pack{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pack .head{display:flex;gap:12px;align-items:center}
+.pack .ico{width:52px;height:52px;flex:none}
+.pack.new{border:2px solid var(--gold)}
+.badge{font-size:.8rem;font-weight:700;letter-spacing:.04em;background:var(--gold);color:var(--surface);border-radius:999px;padding:1px 10px;align-self:flex-start}
+.sits{display:flex;flex-direction:column;gap:8px}
+.sit-btn{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;min-width:0}
+.sit-btn:hover{border-color:var(--teal)}
+.sit-btn .st{font-family:var(--display);color:var(--gold);white-space:nowrap}
+.back{background:none;border:none;color:var(--teal);font-weight:700;padding:0;align-self:flex-start}
+.dots{display:flex;gap:6px}
+.dots i{flex:1;height:8px;border-radius:999px;background:var(--line)}
+.dots i.on{background:var(--teal)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.scene{display:flex;gap:16px;align-items:center}
+.scene svg{width:84px;height:84px;flex:none}
+.big{font-size:1.2rem;font-weight:500}
+.speak{background:var(--teal-soft);border:none;border-radius:999px;padding:8px 16px;font-weight:700;color:var(--ink);align-self:flex-start;display:flex;gap:6px;align-items:center}
+.word{background:none;border:none;border-bottom:2px dotted var(--teal);padding:0;color:var(--teal);font-weight:700}
+.def{background:var(--teal-soft);border-radius:10px;padding:8px 12px;font-size:.95rem}
+.feels{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.feel{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.feel svg{width:52px;height:52px}
+.feel span{font-family:var(--display);font-size:1.05rem}
+.feel small{font-size:.78rem;color:var(--muted);text-align:center;line-height:1.35}
+.feel[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:14px 16px;text-align:left}
+.opt:hover:not([disabled]){border-color:var(--teal)}
+.opt.right{background:var(--teal-soft);border-color:var(--teal)}
+.opt.try{background:var(--soft);border-color:var(--soft-line)}
+.opt[disabled]{cursor:default}
+.fb{border-radius:12px;padding:12px 14px;background:var(--teal-soft)}
+.fb.try{background:var(--soft)}
+.phrase{font-family:var(--display);font-size:1.45rem;color:var(--teal);line-height:1.4}
+.own{display:flex;flex-direction:column;gap:6px}
+.own input{border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{background:var(--teal);color:var(--surface);border:none;border-radius:999px;padding:12px 22px;font-weight:700}
+.btn.ghost{background:none;color:var(--teal);border:2px solid var(--teal)}
+.praise{text-align:center;align-items:center}
+.praise .stars{font-size:2.2rem;color:var(--gold);letter-spacing:.2em}
+.parent{display:flex;flex-direction:column;gap:14px}
+.tipbox{background:var(--gold-soft);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.tipbox ol,.tipbox ul{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.say-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.say-list div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.95rem}
+.say-list .no{text-decoration:line-through;color:var(--muted)}
+textarea{width:100%;min-height:140px;border:2px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);resize:vertical}
+.log{display:flex;flex-direction:column;gap:8px}
+.log div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.95rem}
+@media (max-width:440px){h1{font-size:1.6rem}.say-list{grid-template-columns:1fr}.scene svg{width:64px;height:64px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ---------- 그림 ---------- */
+const C="currentColor";
+const ICONS={
+ trash:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="24" width="40" height="44" rx="5" fill="var(--teal-soft)"/><path d="M14 24h52M32 24v-8h16v8M32 36v22M48 36v22"/></svg>`,
+ test:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="12" width="44" height="58" rx="5" fill="var(--gold-soft)"/><path d="M28 28h24M28 40h24M28 52h12"/><path d="M50 50l4 4 8-10"/></svg>`,
+ tired:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linecap="round"><circle cx="40" cy="42" r="26" fill="var(--teal-soft)"/><path d="M28 40h8M44 40h8M32 54q8-4 16 0"/><path d="M56 14h10l-10 10h10" stroke-width="3"/></svg>`,
+ ask:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18h56v36H34l-14 12V54h-8z" fill="var(--teal-soft)"/><path d="M34 30q0-6 6-6t6 6q0 5-6 7v3M40 46v1"/></svg>`,
+ heart:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linejoin="round"><path d="M40 66S12 48 12 30a14 14 0 0 1 28-4 14 14 0 0 1 28 4c0 18-28 36-28 36z" fill="var(--gold-soft)"/></svg>`,
+ swing:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 70L22 12h36l12 58"/><path d="M32 12v40M48 12v40"/><rect x="28" y="52" width="24" height="6" rx="2" fill="var(--teal-soft)"/></svg>`,
+ chat:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linejoin="round"><rect x="8" y="14" width="44" height="30" rx="8" fill="var(--teal-soft)"/><rect x="28" y="36" width="44" height="28" rx="8" fill="var(--gold-soft)"/></svg>`,
+ bro:`<svg viewBox="0 0 80 80" fill="none" stroke="${C}" stroke-width="4" stroke-linecap="round"><circle cx="28" cy="28" r="10" fill="var(--teal-soft)"/><circle cx="54" cy="32" r="8" fill="var(--gold-soft)"/><path d="M12 68q2-22 16-22t16 22M42 68q2-18 12-18t12 18"/></svg>`
+};
+function face(kind){
+ const m={sad:"M30 58q10-8 20 0",unfair:"M30 56h20",shy:"M32 54q8 5 16 0",scared:"M32 56q8-6 16 0",angry:"M30 58q10-8 20 0",tired:"M32 56h16",ok:"M30 52q10 9 20 0"}[kind];
+ const brow={angry:'<path d="M26 32l10 4M54 32l-10 4"/>',unfair:'<path d="M26 34l10-2M54 34l-10-2"/>',sad:'<path d="M26 34l10-4M54 34l-10-4"/>',scared:'<path d="M26 30q5-4 10 0M44 30q5-4 10 0"/>'}[kind]||"";
+ const eyes=kind==="tired"?'<path d="M28 42h8M44 42h8"/>':kind==="scared"?'<circle cx="32" cy="42" r="4"/><circle cx="48" cy="42" r="4"/>':'<circle cx="32" cy="42" r="2.5" fill="currentColor"/><circle cx="48" cy="42" r="2.5" fill="currentColor"/>';
+ const blush=kind==="shy"?'<circle cx="24" cy="50" r="4" fill="var(--gold)" stroke="none" opacity=".5"/><circle cx="56" cy="50" r="4" fill="var(--gold)" stroke="none" opacity=".5"/>':"";
+ const tear=kind==="sad"?'<path d="M52 48q2 5 0 7q-2-2 0-7z" fill="var(--teal)" stroke="none"/>':"";
+ return `<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><circle cx="40" cy="44" r="28" fill="${kind==="angry"?"var(--soft)":"var(--gold-soft)"}"/>${brow}${eyes}${blush}${tear}<path d="${m}"/></svg>`;
+}
+const FEELS=[
+ ["sad","서운함","바랐던 대로 안 돼서 마음이 조금 아파"],
+ ["unfair","억울함","내 잘못이 아닌데 혼난 것 같아"],
+ ["shy","창피함","다른 사람 앞에서 얼굴이 뜨거워"],
+ ["scared","불안함","또 혼날까 봐 걱정돼"],
+ ["angry","화남","속에서 뜨거운 게 올라와"],
+ ["tired","지침","몸이랑 머리가 너무 피곤해"]
+];
+
+/* ---------- 단어 뜻 ---------- */
+const WORDS={
+ "지시":"해야 할 일을 알려주는 말",
+ "되묻기":"잘 모를 때 한 번 더 물어보는 것",
+ "분리수거":"쓰레기를 종이, 플라스틱, 캔처럼 나눠서 버리는 것",
+ "사과":"내 잘못을 인정하고 미안하다고 말하는 것",
+ "놀림":"일부러 기분 나쁘게 하려고 하는 말",
+ "덤덤하게":"크게 화내거나 울지 않고 차분하게",
+ "편":"내 쪽, 나를 도와주는 사람"
+};
+function rich(t){return esc(t).replace(/\[\[(.+?)\]\]/g,(_,w)=>`<button class="word" data-w="${w}">${w}</button>`)}
+
+/* ---------- 현준이 상황 묶음 ---------- */
+const PACKS=[
+ {id:"errand",title:"심부름 사건",note:"이번 주 실제로 있었던 일",ico:"trash",isNew:true,sits:[
+  {ico:"tired",scene:"새 학원 테스트를 보고 왔어. 머리가 너무 피곤해. 그런데 아빠가 쓰레기 버리기 심부름을 시켰어.",
+   feelHint:"이럴 때는 지치거나 불안할 수 있어.",
+   q:"아빠한테 뭐라고 말하면 좋을까?",
+   o:["아무 말 안 하고 대충 한다","“아빠, 나 오늘 너무 피곤해. 하나씩 천천히 말해줘.”","“싫어! 안 해!”"],a:1,
+   why:"피곤하다고 먼저 말하면, 아빠가 현준이 상태를 알 수 있어. 그러면 아빠도 더 천천히 말해줄 수 있어.",
+   phrase:"아빠, 나 오늘 너무 피곤해. 하나씩 천천히 말해줘."},
+  {ico:"ask",scene:"아빠가 [[분리수거]] 심부름을 말해줬어. 그런데 뭘 어디에 버려야 하는지 헷갈려.",
+   feelHint:"헷갈리면 불안할 수 있어.",
+   q:"어떻게 하면 좋을까?",
+   o:["대충 아무 데나 버린다","“이거 어디에 버리면 돼? 한 번만 다시 말해줘.”","그냥 안 하고 방에 들어간다"],a:1,
+   why:"[[되묻기]]는 똑똑한 사람들이 쓰는 방법이야. 한 번 물어보면 실수가 확 줄어.",
+   phrase:"이거 어디에 버리면 돼? 한 번만 다시 말해줘."},
+  {ico:"heart",scene:"심부름을 실수했어. 아빠가 많이 화를 냈어. 마음이 안 좋아.",
+   feelHint:"서운함, 억울함, 창피함, 무서움이 한꺼번에 올 수 있어. 다 괜찮은 기분이야.",
+   q:"나중에 마음이 조금 가라앉으면 뭐라고 말할까?",
+   o:["“아빠 미워!” 하고 문을 쾅 닫는다","“아빠, 아까 혼나서 서운했어. 나 그날 진짜 힘들었어.”","아무한테도 말 안 하고 참는다"],a:1,
+   why:"참으면 마음에 쌓였다가 짜증으로 나와. 기분을 말로 하면 아빠도 현준이 마음을 알 수 있어.",
+   phrase:"아빠, 아까 혼나서 서운했어. 나 그날 진짜 힘들었어."},
+  {ico:"heart",scene:"다음 날 아빠가 “어제 화내서 미안해. 테스트 때문에 피곤했지?”라고 [[사과]]했어.",
+   feelHint:"마음이 풀리거나, 아직 조금 서운할 수도 있어.",
+   q:"어떻게 대답하면 좋을까?",
+   o:["“몰라.” 하고 가 버린다","“괜찮아. 나도 다음엔 헷갈리면 물어볼게.”","“아빠가 잘못했지!” 하고 계속 화낸다"],a:1,
+   why:"사과를 받아주면 다시 사이가 좋아져. 아직 조금 서운하면 “조금 서운했어, 그래도 괜찮아”라고 해도 돼.",
+   phrase:"괜찮아. 나도 다음엔 헷갈리면 물어볼게."}]},
+ {id:"friends",title:"놀이터와 학교 친구",note:"요즘 친구 관계",ico:"swing",sits:[
+  {ico:"chat",scene:"반 친구가 웃으면서 “너 놀이터에서 누나랑 사귀냐?”라고 했어.",
+   feelHint:"창피하거나 화가 날 수 있어.",
+   q:"어떻게 말하면 좋을까?",
+   o:["“아니거든!!” 하고 소리친다","“그냥 동네 친구야. 같이 게임해.” 하고 [[덤덤하게]] 말한다","울면서 교실을 나간다"],a:1,
+   why:"짧고 차분하게 말하면 [[놀림]]이 금방 끝나. 화내면 친구는 더 재미있어해.",
+   phrase:"그냥 동네 친구야. 같이 게임해."},
+  {ico:"swing",scene:"그네를 타는데 모르는 애들이 누나를 보고 키득거려. 누나가 고개를 숙였어.",
+   feelHint:"누나가 걱정되거나, 나도 창피할 수 있어.",
+   q:"내가 할 수 있는 좋은 행동은?",
+   o:["나도 창피해서 누나랑 멀리 떨어진다","“우리 저쪽 가서 게임하자.” 하고 같이 자리를 옮긴다","그 애들이랑 같이 웃는다"],a:1,
+   why:"싸우지 않아도 돼. 옆에 있어 주는 것만으로 “나는 네 [[편]]이야”라는 뜻이 전해져.",
+   phrase:"우리 저쪽 가서 게임하자."},
+  {ico:"chat",scene:"친구가 “옆반 걔 좀 이상하지 않아? 왜 걔랑 놀아?”라고 물어봤어.",
+   feelHint:"당황하거나 서운할 수 있어.",
+   q:"가장 좋은 대답은?",
+   o:["“응, 좀 이상해.” 하고 맞장구친다","“걔 재밌어. 나랑 잘 맞아.”","옆반 친구의 사정을 다 말해준다"],a:1,
+   why:"친구가 없는 데서 같이 흉보지 않아. 친구 사정은 친구가 직접 말할 일이야.",
+   phrase:"걔 재밌어. 나랑 잘 맞아."}]},
+ {id:"brother",title:"성준이랑",note:"집에서 동생과",ico:"bro",sits:[
+  {ico:"bro",scene:"성준이랑 게임을 하다가 내가 졌어. 성준이가 “형 졌다~” 하고 자랑해.",
+   feelHint:"화나거나 창피할 수 있어.",
+   q:"형으로서 어떻게 하면 멋있을까?",
+   o:["게임기를 뺏는다","“아 아깝다! 한 판 더 하자.”","엄마한테 성준이가 놀렸다고 이른다"],a:1,
+   why:"졌을 때 웃으면서 한 판 더 하자고 하면, 동생도 형이랑 또 놀고 싶어 해.",
+   phrase:"아 아깝다! 한 판 더 하자."},
+  {ico:"bro",scene:"성준이가 내 물건을 허락 없이 가져가서 썼어. 너무 화가 나.",
+   feelHint:"화가 나는 건 당연해. 먼저 숨 세 번 쉬어 봐.",
+   q:"숨 세 번 쉬고 나서 뭐라고 말할까?",
+   o:["소리 지르면서 뺏는다","“그거 내 거야. 쓰고 싶으면 먼저 물어봐 줘.”","말없이 성준이 물건을 숨긴다"],a:1,
+   why:"화난 이유와 바라는 걸 짧게 말하면, 싸움이 커지지 않아.",
+   phrase:"그거 내 거야. 쓰고 싶으면 먼저 물어봐 줘."}]}
+];
+
+/* ---------- 저장 ---------- */
+const KEY="hj-custom-v1";
+let st={done:{},own:{},log:[]};
+try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v)st=Object.assign(st,v)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const app=document.getElementById("app");
+
+/* ---------- 소리로 읽기 ---------- */
+const canSpeak=(()=>{try{return "speechSynthesis" in window&&typeof SpeechSynthesisUtterance!=="undefined"}catch(e){return false}})();
+function speak(t){if(!canSpeak)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/\[\[|\]\]/g,"").replace(/[“”]/g,""));u.lang="ko-KR";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+const speakBtn=(id)=>canSpeak?`<button class="speak" id="${id}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9q2 3 0 6M19 6q4 6 0 12"/></svg>듣기</button>`:"";
+
+function starCount(){return Object.values(st.done).reduce((a,v)=>a+v,0)}
+
+/* ---------- 홈 ---------- */
+let view="kid";
+function home(){
+ app.innerHTML=`<header class="top"><div><p class="muted">현준이 맞춤 · 하루 한두 개</p><h1>현준이 말하기 연습</h1></div><span class="pill">★ ${starCount()}</span></header>
+ <div class="nav" role="tablist"><button role="tab" aria-selected="${view==="kid"}" data-v="kid">현준이 연습</button><button role="tab" aria-selected="${view==="dad"}" data-v="dad">아빠 코너</button></div>
+ <div id="body"></div>`;
+ app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;home()});
+ view==="kid"?kidHome(app.querySelector("#body")):dadHome(app.querySelector("#body"));
+}
+function kidHome(el){
+ el.innerHTML=`<p class="muted">상황 하나에 4단계: 보기 → 기분 고르기 → 좋은 말 고르기 → 소리 내서 말하기. 끝까지 하면 별을 받아.</p>`+
+ PACKS.map(p=>`<section class="pack ${p.isNew?"new":""}"><div class="head"><span class="ico">${ICONS[p.ico]}</span><div>${p.isNew?'<span class="badge">이번 주</span>':""}<h3>${esc(p.title)}</h3><p class="muted" style="font-size:.9rem">${esc(p.note)}</p></div></div>
+ <div class="sits">${p.sits.map((s,i)=>{const k=p.id+i,d=st.done[k]||0;return `<button class="sit-btn" data-p="${p.id}" data-i="${i}"><span style="min-width:0">${i+1}. ${esc(s.scene.replace(/\[\[|\]\]/g,"").slice(0,26))}…</span><span class="st">${d?"★".repeat(d):"시작"}</span></button>`}).join("")}</div></section>`).join("");
+ el.querySelectorAll(".sit-btn").forEach(b=>b.onclick=()=>run(b.dataset.p,+b.dataset.i));
+}
+
+/* ---------- 상황 진행 ---------- */
+let R=null;
+function run(pid,i){R={p:PACKS.find(x=>x.id===pid),i,step:0,feel:null,tried:false,said:false};step();window.scrollTo(0,0)}
+function wordHandlers(root){root.querySelectorAll(".word").forEach(w=>w.onclick=()=>{
+ const n=w.parentElement.querySelector(".def");if(n){n.remove();return}
+ const d=document.createElement("p");d.className="def";d.style.marginTop="6px";d.textContent=`${w.dataset.w}: ${WORDS[w.dataset.w]||""}`;w.parentElement.appendChild(d)})}
+function frame(inner){
+ const s=R.p.sits[R.i];
+ app.innerHTML=`<button class="back" id="bk">← 처음으로</button>
+ <div class="dots" aria-label="${R.step+1}단계 / 4단계">${[0,1,2,3].map(k=>`<i class="${k<=R.step?"on":""}"></i>`).join("")}</div>
+ <div class="card">${inner}</div>`;
+ app.querySelector("#bk").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}home()};
+ wordHandlers(app);
+}
+function step(){
+ const s=R.p.sits[R.i];
+ if(R.step===0){
+  frame(`<p class="muted">1단계 · 상황 보기</p><div class="scene">${ICONS[s.ico]}<p class="big">${rich(s.scene)}</p></div>${speakBtn("sp")}
+  <p class="hint muted" style="font-size:.9rem">밑줄 친 말을 누르면 뜻이 나와.</p><div class="row"><button class="btn" id="nx">알겠어</button></div>`);
+  const sp=app.querySelector("#sp");if(sp)sp.onclick=()=>speak(s.scene);
+  app.querySelector("#nx").onclick=()=>{R.step=1;step()};
+ }else if(R.step===1){
+  frame(`<p class="muted">2단계 · 내 기분 고르기</p><h3>이때 내 기분은 어땠을까?</h3><p class="muted" style="font-size:.95rem">${esc(s.feelHint)} 여러 개 골라도 돼.</p>
+  <div class="feels">${FEELS.map(([k,n,d])=>`<button class="feel" aria-pressed="false" data-f="${k}">${face(k)}<span>${n}</span><small>${d}</small></button>`).join("")}</div>
+  <div id="fb"></div>`);
+  const chosen=new Set();
+  app.querySelectorAll(".feel").forEach(b=>b.onclick=()=>{const k=b.dataset.f;chosen.has(k)?chosen.delete(k):chosen.add(k);b.setAttribute("aria-pressed",chosen.has(k));
+   const fb=app.querySelector("#fb");
+   if(!chosen.size){fb.innerHTML="";return}
+   const names=FEELS.filter(f=>chosen.has(f[0])).map(f=>f[1]);
+   fb.innerHTML=`<div class="fb"><b>기분을 말로 골랐어. 잘했어!</b> “나는 ${names.join(", ")} 마음이었어.” 이렇게 말할 수 있어.</div><div class="row" style="margin-top:12px"><button class="btn" id="nx">다음</button></div>`;
+   fb.querySelector("#nx").onclick=()=>{R.feel=names;R.step=2;step()};});
+ }else if(R.step===2){
+  frame(`<p class="muted">3단계 · 좋은 말 고르기</p><h3>${esc(s.q)}</h3>${speakBtn("sp")}
+  <div class="opts">${s.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join("")}</div><div id="fb"></div>`);
+  const sp=app.querySelector("#sp");if(sp)sp.onclick=()=>speak(s.q+". "+s.o.map((o,k)=>(k+1)+"번, "+o).join(". "));
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const k=+b.dataset.k,fb=app.querySelector("#fb");
+   if(k===s.a){b.classList.add("right");app.querySelectorAll(".opt").forEach(o=>o.disabled=true);
+    fb.innerHTML=`<div class="fb"><b>${R.tried?"다시 생각해서 찾아냈어! 멋지다.":"좋은 말을 골랐어!"}</b> ${rich(s.why)}</div><div class="row" style="margin-top:12px"><button class="btn" id="nx">다음</button></div>`;
+    wordHandlers(fb);fb.querySelector("#nx").onclick=()=>{R.step=3;step()};
+   }else{R.tried=true;b.classList.add("try");b.disabled=true;
+    fb.innerHTML=`<div class="fb try"><b>음, 이렇게 하면 어떻게 될까?</b> 상대가 어떤 기분일지 생각해 보고 다른 것도 골라 봐.</div>`}});
+ }else if(R.step===3){
+  const k=R.p.id+R.i,own=st.own[k]||"";
+  frame(`<p class="muted">4단계 · 소리 내서 말하기</p><h3>이 말을 소리 내서 해 봐</h3><p class="phrase">${esc(own||s.phrase)}</p>${speakBtn("sp")}
+  <div class="own"><label for="own">내 말로 바꿔도 돼 (선택)</label><input id="own" type="text" value="${esc(own)}" placeholder="${esc(s.phrase)}"></div>
+  <div class="row"><button class="btn" id="said">소리 내서 말해봤어</button></div>`);
+  const sp=app.querySelector("#sp");if(sp)sp.onclick=()=>speak(app.querySelector("#own").value||s.phrase);
+  app.querySelector("#own").oninput=e=>{st.own[k]=e.target.value.trim();save();app.querySelector(".phrase").textContent=e.target.value.trim()||s.phrase};
+  app.querySelector("#said").onclick=()=>{const n=2+(st.own[k]?1:0);st.done[k]=Math.max(st.done[k]||0,Math.min(n,3));save();finish(n)};
+ }
+}
+function finish(n){
+ const s=R.p.sits[R.i],k=R.p.id+R.i,owned=!!st.own[k];
+ const lines=["끝까지 해냈어","기분을 말로 골랐어"];if(R.tried)lines.push("다시 생각해서 찾아냈어");if(owned)lines.push("내 말로 바꿔서 말했어");
+ const next=R.i<R.p.sits.length-1;
+ app.innerHTML=`<div class="card praise"><p class="stars" aria-label="별 ${Math.min(n,3)}개">${"★".repeat(Math.min(n,3))}</p><h2>잘했어, 현준아!</h2>
+ <p>${lines.join(" · ")}</p><p class="muted">오늘 고른 기분: ${esc((R.feel||[]).join(", "))}</p>
+ <div class="row" style="justify-content:center">${next?`<button class="btn" id="nx">다음 상황</button>`:""}<button class="btn ${next?"ghost":""}" id="hm">처음으로</button></div></div>`;
+ const nx=app.querySelector("#nx");if(nx)nx.onclick=()=>run(R.p.id,R.i+1);
+ app.querySelector("#hm").onclick=home;
+}
+
+/* ---------- 아빠 코너 ---------- */
+function dadHome(el){
+ el.innerHTML=`<div class="parent">
+ <div class="tipbox"><h3>이번 주: 심부름 사건 풀기</h3><ol>
+  <li>현준이에게 먼저 짧게 사과해 주세요. “그날 테스트 보고 와서 피곤했지? 아빠가 화를 너무 많이 냈어. 미안해.”</li>
+  <li>그다음 ‘심부름 사건’ 3번, 4번 상황을 같이 해 보세요. 현준이가 서운했던 마음을 말로 꺼내는 연습이에요.</li>
+  <li>앞으로 심부름은 한 번에 하나만, 끝나고 “뭐 하기로 했는지 말해볼래?”로 확인해 주세요.</li>
+  <li>테스트·학원이 많은 날은 심부름을 줄이거나 아주 단순한 것만 주세요.</li></ol></div>
+ <div class="card"><h3>이렇게 말해 주세요</h3><p class="muted" style="font-size:.95rem">결과보다 과정을 칭찬하면 현준이에게 훨씬 크게 닿아요.</p>
+  <div class="say-list"><div class="no">“다 맞았네, 잘했어.”</div><div>“끝까지 해 봤구나.”</div>
+  <div class="no">“이것도 몰라?”</div><div>“헷갈렸는데 다시 생각해 봤네.”</div>
+  <div class="no">“왜 또 실수했어?”</div><div>“어디가 헷갈렸어? 같이 보자.”</div></div></div>
+ <div class="card"><h3>같이 할 때 약속</h3><ul style="margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px">
+  <li>하루 한두 상황, 10분 이내로 끝내기</li><li>점수를 확인하기보다 옆에서 같이 하기</li>
+  <li>놀림 역할극이 끝나면 꼭 “아빠는 현준이 편이야”로 마무리하기</li><li>기분 고르기에는 정답이 없어요. 어떤 기분이든 받아주세요.</li></ul></div>
+ <div class="card"><h3>이번 주 있었던 일</h3><p class="muted" style="font-size:.95rem">짧게 적어 두고, 다음에 Claude에게 이 내용을 보여주면 현준이 맞춤 상황으로 만들어 드려요. 이 기기에만 저장돼요.</p>
+  <textarea id="note" placeholder="예: 11/4 쓰레기 심부름 실수, 아빠가 크게 화냄. 그날 새 수학학원 테스트로 많이 지쳐 있었음."></textarea>
+  <div class="row"><button class="btn" id="add">저장</button><button class="btn ghost" id="cp">전체 복사</button></div><p id="msg" class="muted" style="font-size:.9rem"></p>
+  <div class="log" id="log"></div></div>
+ </div>`;
+ const log=el.querySelector("#log");
+ const draw=()=>{log.innerHTML=st.log.slice().reverse().map(x=>`<div><b>${esc(x.d)}</b> ${esc(x.t)}</div>`).join("")};draw();
+ el.querySelector("#add").onclick=()=>{const t=el.querySelector("#note").value.trim();if(!t)return;
+  const d=new Date();st.log.push({d:`${d.getMonth()+1}/${d.getDate()}`,t});save();el.querySelector("#note").value="";el.querySelector("#msg").textContent="저장했어요.";draw()};
+ el.querySelector("#cp").onclick=()=>{const txt=st.log.map(x=>`${x.d} ${x.t}`).join("\n");const m=el.querySelector("#msg");
+  if(!txt){m.textContent="저장된 내용이 아직 없어요.";return}
+  navigator.clipboard.writeText(txt).then(()=>m.textContent="복사했어요. Claude 대화창에 붙여넣으세요.").catch(()=>{const ta=el.querySelector("#note");ta.value=txt;ta.select();m.textContent="아래 칸의 글을 직접 복사해 주세요."})};
+}
+home();
+</script>
+
+<div class="install" id="install" hidden><p><b>앱처럼 쓰기</b> 홈 화면에 추가하면 바로 열 수 있어요.</p><button class="btn" id="installBtn">추가</button></div>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;
+  const box=document.getElementById("install");if(box){box.hidden=false;
+  document.getElementById("installBtn").onclick=async()=>{box.hidden=true;try{deferredPrompt.prompt();await deferredPrompt.userChoice}catch(x){}deferredPrompt=null}}});
+window.addEventListener("appinstalled",()=>{const b=document.getElementById("install");if(b)b.hidden=true});
+</script>
+</body>
+</html>
