@@ -62,7 +62,19 @@ h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-
 .bar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
-.wrong{color:var(--no);font-weight:500}
+.lv{display:inline-flex;gap:6px;white-space:nowrap}
+.lv b{font-weight:600;padding:1px 7px;border-radius:6px}
+.lv .l0{color:var(--no);background:var(--no-soft)} .lv .l1{color:var(--r2);background:var(--r2s)} .lv .l2{color:var(--ok);background:var(--ok-soft)}
+.qbox{margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--soft);border-left:4px solid var(--accent)}
+.qbox.r1{background:var(--r1s);border-color:var(--r1)} .qbox.r2{background:var(--r2s);border-color:var(--r2)} .qbox.r3{background:var(--r3s);border-color:var(--r3)} .qbox.r4{background:var(--r4s);border-color:var(--r4)} .qbox.r5{background:var(--r5s);border-color:var(--r5)}
+.qbox .qtitle{margin:0;color:var(--fg);font-weight:600;font-size:1rem}
+.qbox .q{margin-top:6px}
+.qbox .q:first-child{margin-top:0}
+.rate{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rate .btn{padding:14px 8px;font-size:.95rem;line-height:1.3}
+.rate .btn small{display:block;font-weight:400;font-size:.75rem;opacity:.8}
+.btn.mid{background:var(--r2s);color:var(--r2);border-color:var(--r2)}
+.again{color:var(--muted);font-size:.8rem}
 .card{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px 22px;overflow:auto}
 .tag{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
 .tag b{display:inline-block;padding:2px 8px;border-radius:6px;font-weight:600;letter-spacing:0}
@@ -71,6 +83,7 @@ h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-
 .q .blank{display:inline-block;min-width:4.5em;border-bottom:2px solid var(--accent);color:var(--accent);text-align:center;font-family:var(--body);font-size:.9em;padding:0 .3em}
 .qtitle{font-size:1.05rem;color:var(--muted);margin:14px 0 0;font-weight:500}
 .q.ans{margin-top:8px;font-size:1.3rem}
+.answer .easy{background:var(--paper);border:1px solid var(--line)}
 .gl{border-bottom:1.5px dotted var(--accent);cursor:pointer}
 .glossbox{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:.95rem;line-height:1.5}
 .glossbox b{color:var(--accent)}
@@ -116,7 +129,7 @@ h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-
 .wronglist{margin:8px 0 0;padding-left:1.2em;font-size:.95rem;line-height:1.6}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .small{font-size:.85rem;color:var(--muted)}
-@media (max-width:480px){.q{font-size:1.25rem}.cgrid{grid-template-columns:1fr 1fr}.card{padding:16px}.btn{padding:14px;font-size:1rem}.seg{margin-left:0}}
+@media (max-width:480px){.rate{grid-template-columns:1fr}.rate .btn small{display:inline;margin-left:6px}.q{font-size:1.25rem}.cgrid{grid-template-columns:1fr 1fr}.card{padding:16px}.btn{padding:14px;font-size:1rem}.seg{margin-left:0}}
 </style>
 
 <div class="app">
@@ -138,12 +151,12 @@ h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-
     <button type="button" class="chip r3" data-r="3회">3회 근로자·기업</button>
     <button type="button" class="chip r4" data-r="4회">4회 경제성장</button>
     <button type="button" class="chip r5" data-r="5회">5회 성장의 문제</button>
-    <button type="button" class="chip" id="chipWrong" data-r="wrong" aria-pressed="false">틀린 것만</button>
+    <button type="button" class="chip" id="chipWeak" data-r="weak" aria-pressed="false">덜 외운 것만</button>
   </div>
   <div class="status">
-    <span id="count">0 / 0</span>
+    <span id="count">남은 0</span>
     <div class="bar"><i id="barFill"></i></div>
-    <span id="wrongCount" class="wrong"></span>
+    <span class="lv" id="lvCounts"></span>
   </div>
   <section class="card" id="card" aria-live="polite"></section>
   <div class="nav" id="nav"><button type="button" id="btnPrev">← 이전</button><button type="button" id="btnNext">건너뛰기 →</button></div>
@@ -160,36 +173,58 @@ const store = {
 };
 let mode = store.get('mode','qa');
 let filter = store.get('filter','all');
-let ansWay = store.get('ans','pick');   // 'pick' | 'type'
-let wrongSet = new Set(store.get('wrong_'+mode, []));
-let deck = [], idx = 0, sessionWrong = [], finished = false, hintOn = false, glossWord = null;
+let ansWay = store.get('ans','pick');
+let levels = store.get('lv_'+mode, {});   // id -> 0 모름 | 1 아리까리 | 2 확실
+let pool = [], queue = [], history = [], pos = -1, finished = false, hintOn = false, glossWord = null, doneCount = 0;
 const $ = id => document.getElementById(id);
 function cardsFor(m){ return (m==='qa'? DATA.qa : DATA.bl).map((c,i)=>Object.assign({id:m+i}, c)); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function norm(s){ return (s||'').replace(/\s+/g,'').replace(/[ㆍ・]/g,'·').replace(/[%％]/g,'%').trim(); }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 const GLOSS_KEYS = Object.keys(GLOSS).sort((a,b)=>b.length-a.length);
-function glossify(text){
-  let out = esc(text);
-  GLOSS_KEYS.forEach(k=>{ const ek = esc(k); if(out.includes(ek)) out = out.replace(ek, `<span class="gl" data-g="${ek}">${ek}</span>`); });
-  return out;
-}
+function glossify(text){ let out = esc(text); GLOSS_KEYS.forEach(k=>{ const ek = esc(k); if(out.includes(ek)) out = out.replace(ek, `<span class="gl" data-g="${ek}">${ek}</span>`); }); return out; }
+function lv(c){ return levels[c.id] ?? 0; }
+function setLv(c, l){ levels[c.id] = l; store.set('lv_'+mode, levels); }
+
 function buildDeck(){
-  let all = cardsFor(mode);
-  if(filter==='wrong') all = all.filter(c=>wrongSet.has(c.id));
-  else if(filter!=='all') all = all.filter(c=>c.r===filter);
-  deck = shuffle(all); idx = 0; sessionWrong = []; finished = false; hintOn=false; glossWord=null;
-  render(); window.scrollTo(0,0);
+  pool = cardsFor(mode);
+  if(filter==='weak') pool = pool.filter(c=>lv(c)<2);
+  else if(filter!=='all') pool = pool.filter(c=>c.r===filter);
+  // 덜 외운 것부터: 모름 → 아리까리 → 확실 순, 같은 단계 안에서는 섞기
+  queue = [0,1,2].flatMap(l=> shuffle(pool.filter(c=>lv(c)===l)));
+  pool.forEach(c=>{ c._rev=false; c._v=undefined; c._typed=null; c._sel=null; c._choices=null; });
+  history = []; pos = -1; finished = false; hintOn=false; glossWord=null; doneCount = 0;
+  advance(); window.scrollTo(0,0);
+}
+function advance(){
+  hintOn=false; glossWord=null;
+  if(pos < history.length-1){ pos++; }
+  else if(queue.length){ history.push(queue.shift()); pos = history.length-1; }
+  else { finished = true; render(); return; }
+  const c = history[pos]; c._rev=false; c._v=undefined; c._typed=null; c._sel=null; c._choices=null;
+  render();
+}
+function goPrev(){ if(pos<=0) return; hintOn=false; glossWord=null; if(finished) finished=false; else pos--; const c=history[pos]; c._rev=false; c._v=undefined; c._typed=null; c._sel=null; render(); window.scrollTo(0,0); }
+function goNext(){ if(finished) return; advance(); window.scrollTo(0,0); }
+// 평가: 0 모름 → 3문제 뒤 다시, 1 아리까리 → 8문제 뒤 다시, 2 확실 → 이번 바퀴 끝
+function rate(c, l){
+  setLv(c, l);
+  // 앞으로 보여줄 목록(history 뒤쪽 + queue)에서 이 카드 제거
+  history = history.slice(0, pos+1).concat(history.slice(pos+1).filter(x=>x!==c));
+  queue = queue.filter(x=>x!==c);
+  if(l===2){ doneCount++; }
+  else { const gap = l===0? 3 : 8; queue.splice(Math.min(gap, queue.length), 0, c); }
+  advance(); window.scrollTo(0,0);
 }
 function makeChoices(c){
   if(c._choices) return c._choices;
-  const pool = cardsFor(mode).filter(o=>o.id!==c.id).flatMap(o=>o.a);
-  const same = cardsFor(mode).filter(o=>o.id!==c.id && o.r===c.r).flatMap(o=>o.a);
+  const all = cardsFor(mode).filter(o=>o.id!==c.id);
+  const same = all.filter(o=>o.r===c.r).flatMap(o=>o.a), rest = all.flatMap(o=>o.a);
   c._choices = c.a.map(ans=>{
     const bad = new Set(c.a.map(norm));
-    const pick = (src)=> shuffle(src.filter(w=>!bad.has(norm(w)) && Math.abs(w.length-ans.length)<=4));
-    let ds = []; const seen = new Set();
-    for(const w of [...pick(same), ...pick(pool)]){ if(ds.length>=3) break; if(seen.has(norm(w))) continue; seen.add(norm(w)); ds.push(w); }
+    const pick = src=> shuffle(src.filter(w=>!bad.has(norm(w)) && Math.abs(w.length-ans.length)<=4));
+    let ds=[]; const seen=new Set();
+    for(const w of [...pick(same), ...pick(rest)]){ if(ds.length>=3) break; if(seen.has(norm(w))) continue; seen.add(norm(w)); ds.push(w); }
     return shuffle([ans, ...ds]);
   });
   return c._choices;
@@ -200,32 +235,30 @@ function render(){
   $('ansPick').setAttribute('aria-pressed', ansWay==='pick');
   $('ansType').setAttribute('aria-pressed', ansWay==='type');
   document.querySelectorAll('#chips .chip').forEach(b=> b.setAttribute('aria-pressed', b.dataset.r===filter));
-  $('chipWrong').textContent = '틀린 것만' + (wrongSet.size? ` (${wrongSet.size})` : '');
-  const total = deck.length, pos = Math.min(idx, total);
-  $('count').textContent = total? `${finished? total : pos+1} / ${total}` : '0 / 0';
-  $('barFill').style.width = total? (pos/total*100)+'%' : '0%';
-  $('wrongCount').textContent = sessionWrong.length? `틀림 ${sessionWrong.length}` : '';
+  const weakN = cardsFor(mode).filter(c=>lv(c)<2).length;
+  $('chipWeak').textContent = '덜 외운 것만' + (weakN? ` (${weakN})` : '');
+  const total = pool.length, remain = queue.length + Math.max(0, history.length-1-pos) + (finished?0:1);
+  const n0 = pool.filter(c=>lv(c)===0).length, n1 = pool.filter(c=>lv(c)===1).length, n2 = pool.filter(c=>lv(c)===2).length;
+  $('count').textContent = total? (finished? '끝' : `남은 ${remain}`) : '0';
+  $('barFill').style.width = total? (doneCount/total*100)+'%' : '0%';
+  $('lvCounts').innerHTML = total? `<b class="l0">모름 ${n0}</b><b class="l1">아리까리 ${n1}</b><b class="l2">확실 ${n2}</b>` : '';
   const card = $('card'), act = $('actions');
+  $('nav').hidden = !total; $('btnPrev').disabled = pos<=0; $('btnNext').disabled = finished;
   if(!total){
-    card.innerHTML = `<div class="done"><h2>여기엔 문제가 없어요</h2><p>${filter==='wrong'? '틀린 문제가 없어요. 전체부터 풀어 보자.' : '다른 회차를 골라 줘.'}</p></div>`;
+    card.innerHTML = `<div class="done"><h2>여기엔 문제가 없어요</h2><p>${filter==='weak'? '덜 외운 문제가 없어요. 전부 확실히 아는 상태!' : '다른 회차를 골라 줘.'}</p></div>`;
     act.className='actions one'; act.innerHTML = `<button type="button" class="btn primary" id="btnAll">전체 문제로</button>`;
     $('btnAll').onclick = ()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
     return;
   }
-  $('nav').hidden = !total; $('btnNext').disabled = finished;
   if(finished){ renderDone(); return; }
-  const c = deck[idx];
-  const revealed = !!c._rev;
-  $('btnPrev').disabled = idx===0;
-  $('btnNext').textContent = revealed? '다음 →' : '건너뛰기 →';
-  const tag = `<div class="tag"><b class="${RNUM[c.r]}">${c.r}</b>${c.s}<span style="margin-left:auto">${pos+1} / ${total}</span></div>`;
-  const parts = c.t.split('___');
-  let sent = '';
+  const c = history[pos]; const revealed = !!c._rev;
+  $('btnNext').textContent = '건너뛰기 →';
+  const tag = `<div class="tag"><b class="${RNUM[c.r]}">${c.r}</b>${c.s}<span style="margin-left:auto">${['모름','아리까리','확실'][lv(c)]}${c._seen? ' · 다시' : ''}</span></div>`;
+  const parts = c.t.split('___'); let sent='';
   parts.forEach((p,i)=>{ sent += glossify(p); if(i<c.a.length){ sent += `<span class="blank" id="bl${i}">${revealed? esc(c.a[i]) : '&nbsp;'}</span>`; } });
-  const qhead = c.q? `<p class="qtitle">${glossify(c.q)}</p>` : '';
-  const sentHtml = `<p class="q${c.q?' ans':''}">${sent}</p>`;
+  const qbox = `<div class="qbox ${RNUM[c.r]}">${c.q? `<p class="qtitle">${glossify(c.q)}</p>` : ''}<p class="q${c.q?' ans':''}">${sent}</p></div>`;
   const glossHtml = glossWord && GLOSS[glossWord]? `<div class="glossbox"><b>${esc(glossWord)}</b> — ${esc(GLOSS[glossWord])}</div>` : '';
-  let body = '';
+  let body='';
   if(!revealed){
     if(ansWay==='type'){
       body = `<form class="inputs" id="blForm">` + c.a.map((_,i)=>`<label for="in${i}">${c.a.length>1? `빈칸 ${i+1}` : '빈칸에 들어갈 말'}<input id="in${i}" autocomplete="off" autocapitalize="off"></label>`).join('') + `</form>`;
@@ -236,20 +269,20 @@ function render(){
     if(hintOn && c.e) body += `<div class="hintbox"><span class="lbl">힌트 · 쉽게 말하면</span>${esc(c.e)}</div>`;
     else body += `<div class="hint">${ansWay==='type'? '띄어쓰기는 신경 쓰지 않아도 돼요. ' : ''}점선 친 단어를 누르면 뜻이 나와요.</div>`;
   } else {
-    if(c._v!==undefined){
-      const n = c._typed.filter((t,i)=>norm(t)===norm(c.a[i])).length;
-      body += `<div class="verdict ${c._v?'ok':'no'}">${c._v? '맞았어요!' : (n? `${c.a.length}개 중 ${n}개 맞음. 틀린 칸을 다시 보자.` : '아쉽다. 정답을 다시 보자.')}</div>`;
-    }
+    if(c._v===true) body += `<div class="verdict ok">맞았어요! 얼마나 확실했어?</div>`;
+    else if(c._v===false){ const n = c._typed.filter((t,i)=>norm(t)===norm(c.a[i])).length; body += `<div class="verdict no">${n? `${c.a.length}개 중 ${n}개 맞음. 틀린 칸을 다시 보자.` : '아쉽다. 정답을 다시 보자.'}</div>`; }
+    else body += `<div class="verdict no">정답을 읽고 넘어가자. 조금 뒤에 다시 나와.</div>`;
     if(c.e) body += `<div class="answer"><div class="easy"><span class="lbl">쉽게 말하면</span>${esc(c.e)}</div></div>`;
   }
-  card.innerHTML = tag + qhead + sentHtml + glossHtml + body;
+  card.innerHTML = tag + qbox + glossHtml + body;
   card.querySelectorAll('.gl').forEach(el=> el.onclick = ()=>{ glossWord = (glossWord===el.dataset.g)? null : el.dataset.g; render(); });
   if(revealed && c._typed){ c._typed.forEach((t,i)=>{ const el=$('bl'+i); if(!el) return; const ok = norm(t)===norm(c.a[i]); el.classList.add(ok?'ok':'no'); if(!ok) el.innerHTML = `${esc(c.a[i])} <small>(${t? esc(t) : '빈칸'})</small>`; }); }
   if(!revealed){
     act.className='actions';
-    act.innerHTML = `<button type="button" class="btn ghost" id="btnHint">${c.e? (hintOn? '정답 보기' : '힌트') : '정답 보기'}</button><button type="button" class="btn primary" id="btnCheck">확인</button>`;
+    act.innerHTML = `<button type="button" class="btn ghost" id="btnDont">모르겠어요</button>` + (c.e && !hintOn? `<button type="button" class="btn ghost" id="btnHint">힌트</button>` : '') + `<button type="button" class="btn primary" id="btnCheck" style="grid-column:1/-1">확인</button>`;
     $('btnCheck').onclick = ()=>check(c);
-    $('btnHint').onclick = ()=>{ if(c.e && !hintOn){ hintOn = true; render(); } else { c._v = undefined; c._typed = null; c._rev = true; render(); } };
+    $('btnDont').onclick = ()=>{ c._v = undefined; c._typed = null; c._rev = true; render(); };
+    const bh=$('btnHint'); if(bh) bh.onclick = ()=>{ hintOn = true; render(); };
     if(ansWay==='type'){
       $('blForm').onsubmit = e=>{ e.preventDefault(); const empty = c.a.findIndex((_,i)=>!($('in'+i).value.trim())); if(empty>=0 && document.activeElement && document.activeElement.id!=='in'+(c.a.length-1)){ $('in'+empty).focus(); return; } check(c); };
       setTimeout(()=>{ const f=$('in0'); if(f) f.focus({preventScroll:true}); }, 0);
@@ -257,58 +290,49 @@ function render(){
       card.querySelectorAll('.cbtn').forEach(b=> b.onclick = ()=>{ c._sel[+b.dataset.b] = b.dataset.w; if(c._sel.every(x=>x!==null)) check(c); else render(); });
     }
   } else if(c._v===true){
-    act.className='actions one'; act.innerHTML = `<button type="button" class="btn ok" id="btnOk">다음 문제</button>`; $('btnOk').onclick = ()=>grade(true);
+    act.className='rate';
+    act.innerHTML = (hintOn? '' : `<button type="button" class="btn ok" id="rate2">확실히 알아요<small>이번 바퀴 끝</small></button>`) +
+      `<button type="button" class="btn mid" id="rate1">아리까리해요<small>조금 뒤에 다시</small></button>` +
+      `<button type="button" class="btn no" id="rate0">찍어서 맞았어요<small>금방 다시</small></button>`;
+    const r2=$('rate2'); if(r2) r2.onclick=()=>rate(c,2);
+    $('rate1').onclick=()=>rate(c,1); $('rate0').onclick=()=>rate(c,0);
   } else {
-    act.className='actions'; act.innerHTML = `<button type="button" class="btn no" id="btnNo">다시 볼래요</button><button type="button" class="btn ok" id="btnOk">알았어요</button>`;
-    $('btnNo').onclick = ()=>grade(false); $('btnOk').onclick = ()=>grade(true);
+    act.className='actions one'; act.innerHTML = `<button type="button" class="btn no" id="rate0">다시 볼게요<small class="again"> · 금방 다시 나와요</small></button>`;
+    $('rate0').onclick=()=>{ c._seen=true; rate(c,0); };
   }
 }
 function check(c){
   c._typed = ansWay==='type' ? c.a.map((_,i)=> ($('in'+i)||{}).value || '') : (c._sel||[]).map(x=>x||'');
   c._v = c._typed.every((t,i)=> norm(t)===norm(c.a[i]));
-  if(!c._v || hintOn) markWrong(c);
-  c._rev = true; render();
+  c._rev = true; c._seen = true; render();
 }
-function markWrong(c){ if(!sessionWrong.includes(c)) sessionWrong.push(c); wrongSet.add(c.id); store.set('wrong_'+mode, [...wrongSet]); }
-function grade(ok){
-  const c = deck[idx];
-  if(ok){ if(!sessionWrong.includes(c)){ wrongSet.delete(c.id); store.set('wrong_'+mode, [...wrongSet]); } }
-  else markWrong(c);
-  c._graded = ok;
-  goNext();
-}
-function goNext(){ hintOn = false; glossWord = null; idx++; if(idx>=deck.length) finished = true; render(); window.scrollTo(0,0); }
-function goPrev(){ if(idx===0) return; hintOn = false; glossWord = null; if(finished){ finished = false; idx = deck.length-1; } else idx--; render(); window.scrollTo(0,0); }
-$('btnNext').onclick = goNext;
-$('btnPrev').onclick = goPrev;
 function renderDone(){
-  const total = deck.length, right = total - sessionWrong.length;
+  const total = pool.length;
+  const n0 = pool.filter(c=>lv(c)===0).length, n1 = pool.filter(c=>lv(c)===1).length, n2 = pool.filter(c=>lv(c)===2).length;
   const card = $('card'), act = $('actions');
-  const list = sessionWrong.length
-    ? `<p>다시 볼 문제</p><ol class="wronglist">${sessionWrong.map(c=> `<li>${esc(c.q || c.t.replace(/___/g,'(　　)'))} <span class="small">— ${esc(c.full || c.a.join(', '))}</span></li>`).join('')}</ol>`
-    : `<p>전부 맞혔어요. 이 묶음은 끝!</p>`;
-  card.innerHTML = `<div class="done"><h2>한 바퀴 끝</h2><div class="big">${right} / ${total}</div>${list}</div>`;
+  const weak = pool.filter(c=>lv(c)<2);
+  const list = weak.length ? `<p>아직 덜 외운 문제</p><ol class="wronglist">${weak.map(c=> `<li>${esc(c.q || c.t.replace(/___/g,'(　　)'))} <span class="small">— ${esc(c.full || c.a.join(', '))}</span></li>`).join('')}</ol>` : `<p>이 묶음은 전부 확실히 알아요. 끝!</p>`;
+  card.innerHTML = `<div class="done"><h2>한 바퀴 끝</h2><div class="big">${n2} / ${total}</div><p>확실 ${n2} · 아리까리 ${n1} · 모름 ${n0}</p>${list}</div>`;
   act.className='actions';
-  act.innerHTML = (sessionWrong.length? `<button type="button" class="btn primary" id="btnRedo">틀린 것만 다시 (${sessionWrong.length})</button>` : `<button type="button" class="btn primary" id="btnAgain">한 바퀴 더</button>`) + `<button type="button" class="btn" id="btnNew">다른 회차 고르기</button>`;
-  const redo = $('btnRedo'); if(redo) redo.onclick = ()=>{ filter='wrong'; store.set('filter',filter); buildDeck(); };
-  const again = $('btnAgain'); if(again) again.onclick = buildDeck;
-  $('btnNew').onclick = ()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
+  act.innerHTML = (weak.length? `<button type="button" class="btn primary" id="btnRedo">덜 외운 것만 다시 (${weak.length})</button>` : `<button type="button" class="btn primary" id="btnAgain">한 바퀴 더</button>`) + `<button type="button" class="btn" id="btnNew">다른 회차 고르기</button>`;
+  const redo=$('btnRedo'); if(redo) redo.onclick=()=>{ filter='weak'; store.set('filter',filter); buildDeck(); };
+  const again=$('btnAgain'); if(again) again.onclick=buildDeck;
+  $('btnNew').onclick=()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
 }
-function setMode(m){ if(mode===m) return; mode=m; store.set('mode',mode); wrongSet = new Set(store.get('wrong_'+mode, [])); if(filter==='wrong'&&!wrongSet.size){ filter='all'; store.set('filter',filter); } buildDeck(); }
-$('modeQa').onclick = ()=>setMode('qa');
-$('modeBl').onclick = ()=>setMode('bl');
-$('ansPick').onclick = ()=>{ if(ansWay!=='pick'){ ansWay='pick'; store.set('ans',ansWay); render(); } };
-$('ansType').onclick = ()=>{ if(ansWay!=='type'){ ansWay='type'; store.set('ans',ansWay); render(); } };
-document.querySelectorAll('#chips .chip').forEach(b=> b.onclick = ()=>{ filter = b.dataset.r; store.set('filter',filter); buildDeck(); });
+function setMode(m){ if(mode===m) return; mode=m; store.set('mode',mode); levels = store.get('lv_'+mode, {}); buildDeck(); }
+$('modeQa').onclick=()=>setMode('qa'); $('modeBl').onclick=()=>setMode('bl');
+$('ansPick').onclick=()=>{ if(ansWay!=='pick'){ ansWay='pick'; store.set('ans',ansWay); render(); } };
+$('ansType').onclick=()=>{ if(ansWay!=='type'){ ansWay='type'; store.set('ans',ansWay); render(); } };
+document.querySelectorAll('#chips .chip').forEach(b=> b.onclick=()=>{ filter=b.dataset.r; store.set('filter',filter); buildDeck(); });
+$('btnNext').onclick=goNext; $('btnPrev').onclick=goPrev;
 document.addEventListener('keydown', e=>{
   if(e.target.tagName==='INPUT') return;
-  if(e.key===' '||e.key==='Enter'){ const o=$('btnOk'); if(o && !$('btnNo')){ e.preventDefault(); o.click(); } }
-  if(e.key==='ArrowLeft'){ goPrev(); }
-  if(e.key==='ArrowRight'){ if(!finished && deck.length) goNext(); }
-  if(e.key==='1'){ const n=$('btnNo'); if(n) n.click(); }
-  if(e.key==='2'){ const o=$('btnOk'); if(o) o.click(); }
+  if(e.key==='ArrowLeft') goPrev();
+  if(e.key==='ArrowRight') goNext();
+  if(e.key==='1'){ const b=$('rate0'); if(b) b.click(); }
+  if(e.key==='2'){ const b=$('rate1'); if(b) b.click(); }
+  if(e.key==='3'){ const b=$('rate2'); if(b) b.click(); }
 });
-if(filter==='wrong' && !wrongSet.size) filter='all';
 buildDeck();
 </script>
 </body>
