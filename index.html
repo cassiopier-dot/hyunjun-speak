@@ -261,7 +261,7 @@ function starCount(){return Object.values(st.done).reduce((a,v)=>a+v,0)}
 /* ---------- 홈 ---------- */
 let view="kid";
 function home(){
- app.innerHTML=`<header class="top"><div><p class="muted">현준이 맞춤 · 하루 한두 개</p><h1>현준이 말하기 연습</h1></div><span class="pill">★ ${starCount()}</span></header>
+ app.innerHTML=`<header class="top"><div><p class="muted">현준이 맞춤 · 하루 한두 개 · v5</p><h1>현준이 말하기 연습</h1></div><span class="pill">★ ${starCount()}</span></header>
  <div class="nav" role="tablist"><button role="tab" aria-selected="${view==="kid"}" data-v="kid">현준이 연습</button><button role="tab" aria-selected="${view==="dad"}" data-v="dad">{P} 코너</button></div>
  <div id="body"></div>`;
  settingsUI(app,home);
@@ -372,7 +372,7 @@ home();
 
 <div class="install" id="install" hidden><p><b>앱처럼 쓰기</b> 홈 화면에 추가하면 바로 열 수 있어요.</p><button class="btn" id="installBtn">추가</button></div>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{})})}
 let deferredPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;
   const box=document.getElementById("install");if(box){box.hidden=false;

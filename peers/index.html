@@ -402,7 +402,7 @@ function home(){
   cur=null;
   const data=D(),tt=total(),max=data.length*4;
   app.innerHTML=`
-  <header class="top"><div><p class="muted">PEERS 방식 · 집에서 {P}와 함께</p><h1>현준이 친구 기술 연습장</h1></div>
+  <header class="top"><div><p class="muted">PEERS 방식 · 집에서 {P}와 함께 · v5</p><h1>현준이 친구 기술 연습장</h1></div>
   <span class="score" aria-label="모은 별">★ ${tt} / ${max}</span></header>
   <div class="lvl" role="tablist" aria-label="단계">
     <button role="tab" aria-selected="${lv===1}" data-l="1"><b>1단계</b><span>기본 · 초등</span></button>
@@ -519,7 +519,7 @@ home();
 <p class="xlink"><a href="../">← 현준이 맞춤 말하기 연습으로</a></p>
 <div class="install" id="install" hidden><p><b>앱처럼 쓰기</b> 홈 화면에 추가하면 바로 열 수 있어요.</p><button class="btn" id="installBtn">추가</button></div>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("../sw.js").catch(()=>{})})}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("../sw.js").then(r=>r.update()).catch(()=>{})})}
 let deferredPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const box=document.getElementById("install");if(box){box.hidden=false;
   document.getElementById("installBtn").onclick=async()=>{box.hidden=true;try{deferredPrompt.prompt();await deferredPrompt.userChoice}catch(x){}deferredPrompt=null}}});
