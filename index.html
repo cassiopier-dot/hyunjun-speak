@@ -17,7 +17,8 @@ img{max-width:100%}
 [hidden]{display:none!important}
 .install{position:fixed;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom,0px));background:var(--surface);border:2px solid var(--teal);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:20}
 .install p{font-size:.95rem}
-.offline{font-size:.8rem;color:var(--muted);text-align:center}
+.xlink{font-size:.95rem;text-align:center;margin-top:8px}
+.xlink a{color:var(--teal);font-weight:700}
 </style>
 <title>현준이 맞춤 말하기 연습</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
@@ -239,6 +240,7 @@ function home(){
  <div id="body"></div>`;
  app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;home()});
  view==="kid"?kidHome(app.querySelector("#body")):dadHome(app.querySelector("#body"));
+ app.insertAdjacentHTML("beforeend",'<p class="xlink"><a href="peers/">12회기 친구 기술 연습장 →</a></p>');
 }
 function kidHome(el){
  el.innerHTML=`<p class="muted">상황 하나에 4단계: 보기 → 기분 고르기 → 좋은 말 고르기 → 소리 내서 말하기. 끝까지 하면 별을 받아.</p>`+
