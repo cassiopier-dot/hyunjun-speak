@@ -64,6 +64,10 @@ h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 .lv{display:inline-flex;gap:6px;white-space:nowrap}
 .lv b{font-weight:600;padding:1px 7px;border-radius:6px}
+.lv button{font:inherit;font-weight:600;padding:3px 9px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;min-height:28px}
+.lv button[aria-pressed=true]{border-color:currentColor;box-shadow:0 0 0 2px var(--paper)}
+.lv button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lv button.l0{color:var(--no);background:var(--no-soft)} .lv button.l1{color:var(--r2);background:var(--r2s)} .lv button.l2{color:var(--ok);background:var(--ok-soft)}
 .lv .l0{color:var(--no);background:var(--no-soft)} .lv .l1{color:var(--r2);background:var(--r2s)} .lv .l2{color:var(--ok);background:var(--ok-soft)}
 .qbox{margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--soft);border-left:4px solid var(--accent)}
 .qbox.r1{background:var(--r1s);border-color:var(--r1)} .qbox.r2{background:var(--r2s);border-color:var(--r2)} .qbox.r3{background:var(--r3s);border-color:var(--r3)} .qbox.r4{background:var(--r4s);border-color:var(--r4)} .qbox.r5{background:var(--r5s);border-color:var(--r5)}
@@ -216,6 +220,7 @@ let mode = store.get('mode','qa');
 let filter = store.get('filter','all');
 let ansWay = store.get('ans','pick');
 let levels = store.get('lv_'+mode, {});   // id -> 0 모름 | 1 아리까리 | 2 확실
+let lvFilter = null, basePool = [];
 let pool = [], queue = [], history = [], pos = -1, finished = false, hintOn = false, glossWord = null, doneCount = 0;
 const $ = id => document.getElementById(id);
 function cardsFor(m){ return (m==='qa'? DATA.qa : DATA.bl).map((c,i)=>Object.assign({id:m+i}, c)); }
@@ -231,6 +236,8 @@ function buildDeck(){
   pool = cardsFor(mode);
   if(filter==='weak') pool = pool.filter(c=>lv(c)<2);
   else if(filter!=='all') pool = pool.filter(c=>c.r===filter);
+  basePool = pool;
+  if(lvFilter!==null) pool = pool.filter(c=>lv(c)===lvFilter);
   // 덜 외운 것부터: 모름 → 아리까리 → 확실 순, 같은 단계 안에서는 섞기
   queue = [0,1,2].flatMap(l=> shuffle(pool.filter(c=>lv(c)===l)));
   pool.forEach(c=>{ c._rev=false; c._v=undefined; c._typed=null; c._sel=null; c._choices=null; });
@@ -280,16 +287,18 @@ function render(){
   const weakN = cardsFor(mode).filter(c=>lv(c)<2).length;
   $('chipWeak').textContent = '덜 외운 것만' + (weakN? ` (${weakN})` : '');
   const total = pool.length, remain = queue.length + Math.max(0, history.length-1-pos) + (finished?0:1);
-  const n0 = pool.filter(c=>lv(c)===0).length, n1 = pool.filter(c=>lv(c)===1).length, n2 = pool.filter(c=>lv(c)===2).length;
+  const bp = basePool.length? basePool : pool;
+  const n0 = bp.filter(c=>lv(c)===0).length, n1 = bp.filter(c=>lv(c)===1).length, n2 = bp.filter(c=>lv(c)===2).length;
   $('count').textContent = total? (finished? '끝' : `남은 ${remain}`) : '0';
   $('barFill').style.width = total? (doneCount/total*100)+'%' : '0%';
-  $('lvCounts').innerHTML = total? `<b class="l0">모름 ${n0}</b><b class="l1">아리까리 ${n1}</b><b class="l2">확실 ${n2}</b>` : '';
+  $('lvCounts').innerHTML = (basePool.length)? [['모름',n0],['아리까리',n1],['확실',n2]].map(([t,n],i)=>`<button type="button" class="l${i}" data-l="${i}" aria-pressed="${lvFilter===i}" title="누르면 ${t} 문제만 풀어요">${t} ${n}</button>`).join('') : '';
+  document.querySelectorAll('#lvCounts button').forEach(b=> b.onclick=()=>{ const l=+b.dataset.l; lvFilter = (lvFilter===l)? null : l; buildDeck(); });
   const card = $('card'), act = $('actions');
   $('nav').hidden = !total; $('btnPrev').disabled = pos<=0; $('btnNext').disabled = finished;
   if(!total){
-    card.innerHTML = `<div class="done"><h2>여기엔 문제가 없어요</h2><p>${filter==='weak'? '덜 외운 문제가 없어요. 전부 확실히 아는 상태!' : '다른 회차를 골라 줘.'}</p></div>`;
+    card.innerHTML = `<div class="done"><h2>여기엔 문제가 없어요</h2><p>${lvFilter!==null? '이 단계에 해당하는 문제가 없어요. 위의 같은 버튼을 다시 누르면 풀려요.' : filter==='weak'? '덜 외운 문제가 없어요. 전부 확실히 아는 상태!' : '다른 회차를 골라 줘.'}</p></div>`;
     act.className='actions one'; act.innerHTML = `<button type="button" class="btn primary" id="btnAll">전체 문제로</button>`;
-    $('btnAll').onclick = ()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
+    $('btnAll').onclick = ()=>{ lvFilter=null; filter='all'; store.set('filter',filter); buildDeck(); };
     return;
   }
   if(finished){ renderDone(); return; }
@@ -357,15 +366,15 @@ function renderDone(){
   card.innerHTML = `<div class="done"><h2>한 바퀴 끝</h2><div class="big">${n2} / ${total}</div><p>확실 ${n2} · 아리까리 ${n1} · 모름 ${n0}</p>${list}</div>`;
   act.className='actions';
   act.innerHTML = (weak.length? `<button type="button" class="btn primary" id="btnRedo">덜 외운 것만 다시 (${weak.length})</button>` : `<button type="button" class="btn primary" id="btnAgain">한 바퀴 더</button>`) + `<button type="button" class="btn" id="btnNew">다른 회차 고르기</button>`;
-  const redo=$('btnRedo'); if(redo) redo.onclick=()=>{ filter='weak'; store.set('filter',filter); buildDeck(); };
+  const redo=$('btnRedo'); if(redo) redo.onclick=()=>{ lvFilter=null; filter='weak'; store.set('filter',filter); buildDeck(); };
   const again=$('btnAgain'); if(again) again.onclick=buildDeck;
-  $('btnNew').onclick=()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
+  $('btnNew').onclick=()=>{ lvFilter=null; filter='all'; store.set('filter',filter); buildDeck(); };
 }
 function setMode(m){ if(mode===m) return; mode=m; store.set('mode',mode); levels = store.get('lv_'+mode, {}); buildDeck(); }
 $('modeQa').onclick=()=>setMode('qa'); $('modeBl').onclick=()=>setMode('bl');
 $('ansPick').onclick=()=>{ if(ansWay!=='pick'){ ansWay='pick'; store.set('ans',ansWay); render(); } };
 $('ansType').onclick=()=>{ if(ansWay!=='type'){ ansWay='type'; store.set('ans',ansWay); render(); } };
-document.querySelectorAll('#chips .chip').forEach(b=> b.onclick=()=>{ filter=b.dataset.r; store.set('filter',filter); buildDeck(); });
+document.querySelectorAll('#chips .chip').forEach(b=> b.onclick=()=>{ if(b.dataset.r==='weak') lvFilter=null; filter=b.dataset.r; store.set('filter',filter); buildDeck(); });
 $('btnNext').onclick=goNext; $('btnPrev').onclick=goPrev;
 document.addEventListener('keydown', e=>{
   if(e.target.tagName==='INPUT') return;
