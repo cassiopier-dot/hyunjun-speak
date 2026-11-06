@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>현준 사회 2단원 퀴즈</title>
+<meta name="theme-color" content="#2c5fb8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 레이아웃: 한 화면 학습 앱 — 상단 컨트롤 바, 가운데 한 장의 카드, 하단 판정 버튼 */
+:root{
+  --bg:#f3f5f9; --paper:#ffffff; --fg:#1d2433; --muted:#5d6675; --line:#d9dee8;
+  --accent:#2c5fb8; --accent-fg:#ffffff; --soft:#e4ecf9;
+  --ok:#1f8a5b; --ok-soft:#dff3e8; --no:#c23b3b; --no-soft:#fbe3e3;
+  --r1:#d85a30; --r1s:#faece7; --r2:#ba7517; --r2s:#faeeda; --r3:#1d9e75; --r3s:#e1f5ee; --r4:#7f77dd; --r4s:#eeedfe; --r5:#d4537e; --r5s:#fbeaf0;
+  --display:"Gowun Dodum","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141922; --paper:#1e2531; --fg:#e8ecf3; --muted:#9aa5b8; --line:#333c4c;
+  --accent:#6f9ce8; --accent-fg:#0f1623; --soft:#243352;
+  --ok:#5fcf97; --ok-soft:#1d3a2c; --no:#ef7b7b; --no-soft:#432222;
+  --r1:#f0997b; --r1s:#3d2217; --r2:#efb15a; --r2s:#3a2a10; --r3:#5dcaa5; --r3s:#133229; --r4:#afa9ec; --r4s:#262346; --r5:#ed93b1; --r5s:#3f1c2a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141922; --paper:#1e2531; --fg:#e8ecf3; --muted:#9aa5b8; --line:#333c4c;
+  --accent:#6f9ce8; --accent-fg:#0f1623; --soft:#243352;
+  --ok:#5fcf97; --ok-soft:#1d3a2c; --no:#ef7b7b; --no-soft:#432222;
+  --r1:#f0997b; --r1s:#3d2217; --r2:#efb15a; --r2s:#3a2a10; --r3:#5dcaa5; --r3s:#133229; --r4:#afa9ec; --r4s:#262346; --r5:#ed93b1; --r5s:#3f1c2a;
+  color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+*{box-sizing:border-box}
+.app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 16px;gap:12px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--paper);margin-left:auto}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.9rem;padding:6px 14px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--paper);color:var(--muted);font:inherit;font-size:.85rem;padding:5px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--soft);font-weight:500}
+.chip.r1[aria-pressed="true"]{border-color:var(--r1);color:var(--r1);background:var(--r1s)}
+.chip.r2[aria-pressed="true"]{border-color:var(--r2);color:var(--r2);background:var(--r2s)}
+.chip.r3[aria-pressed="true"]{border-color:var(--r3);color:var(--r3);background:var(--r3s)}
+.chip.r4[aria-pressed="true"]{border-color:var(--r4);color:var(--r4);background:var(--r4s)}
+.chip.r5[aria-pressed="true"]{border-color:var(--r5);color:var(--r5);background:var(--r5s)}
+.status{display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.wrong{color:var(--no);font-weight:500}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px 22px;overflow:auto}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+.tag b{display:inline-block;padding:2px 8px;border-radius:6px;font-weight:600;letter-spacing:0}
+.tag b.r1{color:var(--r1);background:var(--r1s)} .tag b.r2{color:var(--r2);background:var(--r2s)} .tag b.r3{color:var(--r3);background:var(--r3s)} .tag b.r4{color:var(--r4);background:var(--r4s)} .tag b.r5{color:var(--r5);background:var(--r5s)}
+.q{font-family:var(--display);font-size:1.45rem;line-height:1.45;margin:14px 0 0;text-wrap:balance}
+.q .blank{display:inline-block;min-width:4.5em;border-bottom:2px solid var(--accent);color:var(--accent);text-align:center;font-family:var(--body);font-size:.9em;padding:0 .3em}
+.qtitle{font-size:1.05rem;color:var(--muted);margin:14px 0 0;font-weight:500}
+.q.ans{margin-top:8px;font-size:1.3rem}
+.gl{border-bottom:1.5px dotted var(--accent);cursor:pointer}
+.glossbox{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:.95rem;line-height:1.5}
+.glossbox b{color:var(--accent)}
+.choices{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.choices .lbl{font-size:.85rem;color:var(--muted)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cbtn{font:inherit;font-size:1rem;padding:12px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;text-align:center}
+.cbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);color:var(--accent);font-weight:500}
+.cbtn.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)} .cbtn.no{border-color:var(--no);background:var(--no-soft);color:var(--no)}
+.cbtn:disabled{cursor:default}
+.hintbox{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--soft);font-size:1rem;line-height:1.55}
+.hintbox .lbl{color:var(--accent);display:block;margin-bottom:4px}
+.q .blank.ok{color:var(--ok);border-color:var(--ok)} .q .blank.no{color:var(--no);border-color:var(--no);text-decoration:line-through}
+.inputs{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.inputs label{font-size:.85rem;color:var(--muted)}
+.inputs input{font:inherit;font-size:1.1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.inputs input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.answer{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:12px}
+.answer .lbl{font-size:.78rem;letter-spacing:.04em;color:var(--muted)}
+.answer .book{font-size:1.15rem;font-weight:500;line-height:1.5}
+.answer .easy{background:var(--soft);border-radius:10px;padding:12px 14px;font-size:1rem;line-height:1.55}
+.answer .easy .lbl{color:var(--accent);margin-bottom:4px;display:block}
+.verdict{font-weight:600;font-size:1rem}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--no)}
+.spacer{flex:1}
+.hint{margin-top:auto;padding-top:12px;font-size:.8rem;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;gap:8px}
+.nav button{font:inherit;font-size:.9rem;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.nav button:disabled{opacity:.35;cursor:default}
+.nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions.one{grid-template-columns:1fr}
+.btn{font:inherit;font-size:1.05rem;font-weight:500;padding:16px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--fg);cursor:pointer}
+.btn:focus-visible,.chip:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.btn.no{background:var(--no-soft);color:var(--no);border-color:var(--no)}
+.btn.ghost{color:var(--muted)}
+.done{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.done h2{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:6px 0 0}
+.done .big{font-size:2.6rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.done p{margin:0;color:var(--muted)}
+.wronglist{margin:8px 0 0;padding-left:1.2em;font-size:.95rem;line-height:1.6}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.small{font-size:.85rem;color:var(--muted)}
+@media (max-width:480px){.q{font-size:1.25rem}.cgrid{grid-template-columns:1fr 1fr}.card{padding:16px}.btn{padding:14px;font-size:1rem}.seg{margin-left:0}}
+</style>
+
+<div class="app">
+  <header>
+    <h1>사회 2단원 · 시장경제와 국가 간 거래</h1>
+    <div class="seg" role="group" aria-label="문제 방식">
+      <button type="button" id="modeQa" aria-pressed="true">답 빈칸</button>
+      <button type="button" id="modeBl" aria-pressed="false">문장 괄호</button>
+    </div>
+    <div class="seg" role="group" aria-label="답하는 방법" style="margin-left:0">
+      <button type="button" id="ansPick" aria-pressed="true">고르기</button>
+      <button type="button" id="ansType" aria-pressed="false">쓰기</button>
+    </div>
+  </header>
+  <div class="chips" id="chips" role="group" aria-label="회차 선택">
+    <button type="button" class="chip" data-r="all" aria-pressed="true">전체</button>
+    <button type="button" class="chip r1" data-r="1회">1회 시장경제</button>
+    <button type="button" class="chip r2" data-r="2회">2회 가계·기업</button>
+    <button type="button" class="chip r3" data-r="3회">3회 근로자·기업</button>
+    <button type="button" class="chip r4" data-r="4회">4회 경제성장</button>
+    <button type="button" class="chip r5" data-r="5회">5회 성장의 문제</button>
+    <button type="button" class="chip" id="chipWrong" data-r="wrong" aria-pressed="false">틀린 것만</button>
+  </div>
+  <div class="status">
+    <span id="count">0 / 0</span>
+    <div class="bar"><i id="barFill"></i></div>
+    <span id="wrongCount" class="wrong"></span>
+  </div>
+  <section class="card" id="card" aria-live="polite"></section>
+  <div class="nav" id="nav"><button type="button" id="btnPrev">← 이전</button><button type="button" id="btnNext">건너뛰기 →</button></div>
+  <div class="actions" id="actions"></div>
+</div>
+
+<script>
+const DATA = {"qa":[{"q":"시장이란?","t":"물건이나 서비스의 ___가 이루어지는 곳","a":["거래"],"full":"물건이나 서비스의 거래가 이루어지는 곳","e":"편의점, 온라인 쇼핑몰, 알바 구하기까지 다 시장이야. 뭔가 사고팔면 전부 시장.","r":"1회","s":"시장경제"},{"q":"시장경제란?","t":"___이 경제활동의 ___이 되는 경제 체제","a":["시장","중심"],"full":"시장이 경제활동의 중심이 되는 경제 체제","e":"나라가 “이거 만들어라” 정해주는 게 아니라, 시장에서 알아서 정해지는 방식.","r":"1회","s":"시장경제"},{"q":"시장경제의 두 가지 특징은?","t":"___와 ___","a":["자유","경쟁"],"full":"자유와 경쟁","e":"하고 싶은 걸 하고(자유), 더 잘하려고 겨루는 것(경쟁). 이 둘이 전부야.","r":"1회","s":"시장경제"},{"q":"시장경제에서 개인이 누리는 자유는?","t":"능력과 ___에 따라 ___을 자유롭게 고르고, 번 ___을 자유롭게 씀","a":["적성","직업","소득"],"full":"능력과 적성에 따라 직업을 자유롭게 고르고, 번 소득을 자유롭게 씀","e":"요리사가 될지 개발자가 될지 내가 고르는 것.","r":"1회","s":"시장경제"},{"q":"시장경제에서 기업이 누리는 자유는?","t":"무엇을 얼마나 ___하고 ___할지 스스로 결정함","a":["생산","판매"],"full":"무엇을 얼마나 생산하고 판매할지 스스로 결정함","e":"떡볶이를 팔지 순대를 팔지 가게 주인이 정하는 것.","r":"1회","s":"시장경제"},{"q":"시장경제에서 개인은 무엇을 두고 경쟁하는가?","t":"더 좋은 ___를 얻기 위해 다른 사람과 경쟁함","a":["일자리"],"full":"더 좋은 일자리를 얻기 위해 다른 사람과 경쟁함","e":"같은 회사에 들어가려고 여러 사람이 겨루는 것.","r":"1회","s":"시장경제"},{"q":"시장경제에서 기업은 무엇을 두고 경쟁하는가?","t":"더 많은 ___을 얻기 위해 다른 기업과 경쟁함","a":["이윤"],"full":"더 많은 이윤을 얻기 위해 다른 기업과 경쟁함","e":"옆 가게보다 더 맛있게, 더 싸게 만들려고 애쓰는 것.","r":"1회","s":"시장경제"},{"q":"자유롭고 공정한 경쟁의 좋은 점은?","t":"___ 좋고 다양한 상품을 살 수 있고, 더 좋은 ___를 받을 수 있음","a":["품질","서비스"],"full":"품질 좋고 다양한 상품을 살 수 있고, 더 좋은 서비스를 받을 수 있음","e":"떡볶이집이 둘이면 둘 다 잘하려고 해서 손님이 이득을 봐.","r":"1회","s":"시장경제"},{"q":"담합이란?","t":"기업끼리 ___하여 ___을 정하거나 올리는 것","a":["상의","가격"],"full":"기업끼리 상의하여 가격을 정하거나 올리는 것","e":"“우리 둘 다 5천 원에 팔자” 하고 몰래 약속하는 것. 경쟁하는 척만 하는 거야.","r":"1회","s":"시장경제"},{"q":"허위·과장 광고란?","t":"___ 것을 사실인 것처럼 꾸민 광고","a":["사실이 아닌"],"full":"사실이 아닌 것을 사실인 것처럼 꾸민 광고","e":"맛없는데 “전국 1등 맛집”이라고 써 붙이는 것.","r":"1회","s":"시장경제"},{"q":"불공정한 경쟁을 규제하려고 국가가 만든 기관은?","t":"___","a":["공정거래위원회"],"full":"공정거래위원회","e":"담합이나 거짓 광고를 잡는 심판 같은 곳.","r":"1회","s":"시장경제"},{"q":"자유만이 아니라 공정한 경쟁도 필요한 까닭은?","t":"공정하지 않으면 ___가 ___를 보기 때문","a":["소비자","피해"],"full":"공정하지 않으면 소비자가 피해를 보기 때문","e":"반칙하는 쪽이 이기면 아무도 열심히 안 하게 되니까.","r":"1회","s":"시장경제"},{"q":"가계란?","t":"경제활동을 함께하며 ___을 꾸려 가는 생활 ___","a":["살림","공동체"],"full":"경제활동을 함께하며 살림을 꾸려 가는 생활 공동체","e":"쉽게 말하면 우리 집.","r":"2회","s":"가계와기업"},{"q":"기업이란?","t":"___을 목적으로 물건이나 서비스를 생산하거나 판매하는 ___","a":["이윤","조직"],"full":"이윤을 목적으로 물건이나 서비스를 생산하거나 판매하는 조직","e":"쉽게 말하면 회사.","r":"2회","s":"가계와기업"},{"q":"소득이란?","t":"___에 참여한 ___로 받는 돈","a":["생산 활동","대가"],"full":"생산 활동에 참여한 대가로 받는 돈","e":"아빠가 회사에서 받는 월급.","r":"2회","s":"가계와기업"},{"q":"이윤이란?","t":"물건을 팔아 얻은 ___에서 ___을 뺀 금액","a":["수입","생산 비용"],"full":"물건을 팔아 얻은 수입에서 생산 비용을 뺀 금액","e":"팔아서 번 돈에서 만드는 데 쓴 돈을 뺀 나머지.","r":"2회","s":"가계와기업"},{"q":"가계의 역할 두 가지는?","t":"생산 활동에 참여해 ___을 얻고, 그 소득으로 ___ 활동을 함","a":["소득","소비"],"full":"생산 활동에 참여해 소득을 얻고, 그 소득으로 소비 활동을 함","e":"일해서 돈 벌고, 그 돈으로 치킨 사 먹는 것.","r":"2회","s":"가계와기업"},{"q":"기업의 역할 두 가지는?","t":"물건과 서비스를 ___·판매하고, 사람들을 ___해 ___를 제공함","a":["생산","고용","일자리"],"full":"물건과 서비스를 생산·판매하고, 사람들을 고용해 일자리를 제공함","e":"물건 만들어 팔고, 일할 사람을 뽑는 것.","r":"2회","s":"가계와기업"},{"q":"고용이란?","t":"___를 주고 사람에게 일을 시키는 것","a":["대가"],"full":"대가를 주고 사람에게 일을 시키는 것","e":"돈 주고 일을 맡기는 것.","r":"2회","s":"가계와기업"},{"q":"가계와 기업은 어디에서 만나는가?","t":"___","a":["시장"],"full":"시장","e":"회사가 만든 걸 우리 집이 사는 곳. 그게 시장이야.","r":"2회","s":"가계와기업"},{"q":"가계와 기업의 관계는?","t":"시장에서 거래하며 서로 도움을 주는 ___ 관계","a":["상호 의존"],"full":"시장에서 거래하며 서로 도움을 주는 상호 의존 관계","e":"회사 없으면 집이 돈을 못 벌고, 집이 안 쓰면 회사가 망해. 서로 필요한 사이.","r":"2회","s":"가계와기업"},{"q":"가계의 합리적 선택이란?","t":"적은 ___으로 가장 큰 ___을 얻도록 선택하는 것","a":["비용","만족"],"full":"적은 비용으로 가장 큰 만족을 얻도록 선택하는 것","e":"같은 용돈으로 제일 기분 좋은 걸 고르는 것.","r":"2회","s":"가계와기업"},{"q":"기업의 합리적 선택이란?","t":"적은 ___으로 가장 큰 ___을 얻도록 선택하는 것","a":["비용","이윤"],"full":"적은 비용으로 가장 큰 이윤을 얻도록 선택하는 것","e":"돈을 적게 들이고 많이 남기는 방법을 찾는 것.","r":"2회","s":"가계와기업"},{"q":"근로자란?","t":"___을 제공하고 그 대가로 ___을 받는 사람","a":["노동","임금"],"full":"노동을 제공하고 그 대가로 임금을 받는 사람","e":"일하고 돈 받는 사람. 아빠도, 편의점 알바생도 근로자야.","r":"3회","s":"근로자와기업"},{"q":"근로 조건이란?","t":"___, ___, ___ 등 근로자가 일하는 조건","a":["임금","근로 시간","휴가"],"full":"임금, 근로 시간, 휴가 등 근로자가 일하는 조건","e":"얼마 받고, 몇 시간 일하고, 언제 쉬는지.","r":"3회","s":"근로자와기업"},{"q":"최저 임금이란?","t":"기업이 근로자에게 지급해야 할 ___의 임금","a":["최소한"],"full":"기업이 근로자에게 지급해야 할 최소한의 임금","e":"“이보다 적게 주면 안 돼” 하는 바닥선.","r":"3회","s":"근로자와기업"},{"q":"노동조합이란?","t":"___의 개선을 위해 근로자들이 조직하는 ___","a":["근로 조건","단체"],"full":"근로 조건의 개선을 위해 근로자들이 조직하는 단체","e":"혼자 말하면 안 통하니까 뭉쳐서 같이 말하는 모임.","r":"3회","s":"근로자와기업"},{"q":"근로자의 권리가 보호받지 못하는 경우는?","t":"임금을 제때 못 받거나 ___보다 적게 받는 경우, 위험한 ___, 부당한 ___","a":["최저 임금","작업 환경","해고"],"full":"임금을 제때 못 받거나 최저 임금보다 적게 받는 경우, 위험한 작업 환경, 부당한 해고","e":"돈을 안 주거나, 적게 주거나, 위험하게 시키거나, 이유 없이 자르는 것.","r":"3회","s":"근로자와기업"},{"q":"기업의 사회적 책임이란?","t":"___을 추구할 뿐만 아니라 사회에 ___인 영향을 주도록 지켜야 하는 책임","a":["이윤","긍정적"],"full":"이윤을 추구할 뿐만 아니라 사회에 긍정적인 영향을 주도록 지켜야 하는 책임","e":"회사가 돈만 벌면 끝이 아니라는 뜻.","r":"3회","s":"근로자와기업"},{"q":"기업이 사회적 책임을 지켜야 하는 까닭은?","t":"이윤 추구가 지나치면 근로자와 소비자의 ___를 침해하고 ___을 파괴할 수 있기 때문","a":["권리","환경"],"full":"이윤 추구가 지나치면 근로자와 소비자의 권리를 침해하고 환경을 파괴할 수 있기 때문","e":"돈만 쫓다 보면 사람도 자연도 망가뜨릴 수 있어서.","r":"3회","s":"근로자와기업"},{"q":"ESG 경영이란?","t":"___, ___, ___를 중요하게 여기는 경영","a":["환경","사회","지배 구조"],"full":"환경, 사회, 지배 구조를 중요하게 여기는 경영","e":"회사가 돈 말고도 챙겨야 할 세 가지.","r":"3회","s":"근로자와기업"},{"q":"ESG의 E·S·G는 각각 무엇인가?","t":"E ___, S ___, G ___","a":["환경","사회","지배 구조"],"full":"E 환경, S 사회, G 지배 구조","e":"환경(오염 안 시키기) · 사회(사람들 돕기) · 지배 구조(정직하게 운영하기).","r":"3회","s":"근로자와기업"},{"q":"기업이 환경을 위해 하는 노력의 예는?","t":"테이프가 필요 없는 택배 상자, ___을 줄이는 친환경 생산","a":["폐기물"],"full":"테이프가 필요 없는 택배 상자, 폐기물을 줄이는 친환경 생산","e":"쓰레기가 덜 나오게 만드는 것.","r":"3회","s":"근로자와기업"},{"q":"경제성장이란?","t":"한 나라의 경제 ___가 커지는 것","a":["규모"],"full":"한 나라의 경제 규모가 커지는 것","e":"나라의 덩치가 커지는 것.","r":"4회","s":"경제성장"},{"q":"국내총생산이란?","t":"일정 기간에 한 ___에서 생산된 물건과 서비스의 ___","a":["나라 안","총액"],"full":"일정 기간에 한 나라 안에서 생산된 물건과 서비스의 총액","e":"나라 안에서 만든 걸 전부 더한 값.","r":"4회","s":"경제성장"},{"q":"1인당 국민총소득이란?","t":"국민이 벌어들인 ___을 그 나라의 ___로 나눈 것","a":["소득","인구수"],"full":"국민이 벌어들인 소득을 그 나라의 인구수로 나눈 것","e":"전부 더해서 사람 수로 나눈 값. ‘1인당’이 힌트야.","r":"4회","s":"경제성장"},{"q":"국내총생산과 1인당 국민총소득의 차이는?","t":"국내총생산은 전체를 ___ 값, 1인당 국민총소득은 그걸 인구수로 ___ 값","a":["더한","나눈"],"full":"국내총생산은 전체를 더한 값, 1인당 국민총소득은 그걸 인구수로 나눈 값","e":"피자 한 판 전체냐, 한 사람이 먹는 한 조각이냐의 차이.","r":"4회","s":"경제성장"},{"q":"우리나라 경제성장의 특징은?","t":"___ 이후 ___ 시간 동안 빠른 경제성장을 이루었음","a":["6·25 전쟁","짧은"],"full":"6·25 전쟁 이후 짧은 시간 동안 빠른 경제성장을 이루었음","e":"전쟁으로 다 부서졌는데 눈 깜짝할 사이에 커졌어. 세계에서도 드문 일이야.","r":"4회","s":"경제성장"},{"q":"기대 수명이란?","t":"사람이 태어났을 때 앞으로 ___할 것으로 기대되는 ___ 연수","a":["생존","평균"],"full":"사람이 태어났을 때 앞으로 생존할 것으로 기대되는 평균 연수","e":"몇 살까지 살 것 같은지의 평균.","r":"4회","s":"경제성장"},{"q":"기대 수명이 늘어난 까닭은?","t":"___이 발달하고 ___이 좋아졌기 때문","a":["의료 기술","보건 정책"],"full":"의료 기술이 발달하고 보건 정책이 좋아졌기 때문","e":"병원이 좋아지고 나라가 건강을 챙겨줘서.","r":"4회","s":"경제성장"},{"q":"경제성장으로 나타난 생활의 변화 네 가지는?","t":"___ 증가, ___ 발달, ___ 생활 다양화, ___ 기회 확대","a":["기대 수명","문화 산업","여가","교육"],"full":"기대 수명 증가, 문화 산업 발달, 여가 생활 다양화, 교육 기회 확대","e":"오래 살고 · 한국 문화가 세계로 · 놀 거리 늘고 · 더 배우게 됐어.","r":"4회","s":"경제성장"},{"q":"문화 산업이 발달한 모습은?","t":"K-pop·영화·드라마 등 콘텐츠 ___이 크게 늘어남","a":["수출액"],"full":"K-pop·영화·드라마 등 콘텐츠 수출액이 크게 늘어남","e":"외국 사람들이 한국 노래와 드라마를 보는 것.","r":"4회","s":"경제성장"},{"q":"여가 생활이 다양해진 모습은?","t":"___이 늘고 캠핑·공연 관람 등 여가 활동이 다양해짐","a":["해외여행객"],"full":"해외여행객이 늘고 캠핑·공연 관람 등 여가 활동이 다양해짐","e":"먹고사는 것만 하다가 이제 놀러 다닐 여유가 생긴 거야.","r":"4회","s":"경제성장"},{"q":"교육 기회가 확대된 것을 보여 주는 자료는?","t":"중학교 ___이 1975년 52.2%에서 2021년 ___로 높아짐","a":["취학률","98.1%"],"full":"중학교 취학률이 1975년 52.2%에서 2021년 98.1%로 높아짐","e":"옛날엔 절반만 중학교에 갔는데 지금은 거의 다 가.","r":"4회","s":"경제성장"},{"q":"빠른 경제성장 과정에서 발생한 문제 네 가지는?","t":"___, ___, ___와 자원 낭비, ___","a":["노사 갈등","빈부 격차","과소비","환경 오염"],"full":"노사 갈등, 빈부 격차, 과소비와 자원 낭비, 환경 오염","e":"빨리 크기만 한 게 좋은 일은 아니었어. 부작용이 같이 왔어.","r":"5회","s":"성장의문제"},{"q":"노사 갈등이란?","t":"___와 기업 ___ 사이의 갈등","a":["근로자","경영자"],"full":"근로자와 기업 경영자 사이의 갈등","e":"노(근로자)와 사(사장)의 다툼. 글자 그대로야.","r":"5회","s":"성장의문제"},{"q":"노사 갈등이 생기는 까닭은?","t":"근로자는 높은 ___과 더 나은 근로 환경을 원하고, 경영자는 적은 ___으로 이윤을 얻으려 하기 때문","a":["임금","비용"],"full":"근로자는 높은 임금과 더 나은 근로 환경을 원하고, 경영자는 적은 비용으로 이윤을 얻으려 하기 때문","e":"“월급 더 주세요” vs “비용 줄여야 해요”. 원하는 게 정반대라서.","r":"5회","s":"성장의문제"},{"q":"노사 갈등이 지속되면 생기는 일은?","t":"근로자의 ___가 줄고 국가 경제에도 ___인 영향을 미침","a":["일자리","부정적"],"full":"근로자의 일자리가 줄고 국가 경제에도 부정적인 영향을 미침","e":"싸움이 길어지면 회사도 일하는 사람도 다 손해야.","r":"5회","s":"성장의문제"},{"q":"빈부 격차란?","t":"경제적으로 ___ 사람과 그렇지 못한 사람 간의 ___","a":["풍족한","차이"],"full":"경제적으로 풍족한 사람과 그렇지 못한 사람 간의 차이","e":"잘사는 사람과 못사는 사람의 간격.","r":"5회","s":"성장의문제"},{"q":"빈부 격차가 커지면 어떤 문제가 생기는가?","t":"___ 기회, ___ 경험, ___ 환경 등의 ___으로 이어짐","a":["교육","문화","주거","불평등"],"full":"교육 기회, 문화 경험, 주거 환경 등의 불평등으로 이어짐","e":"돈이 없으면 학원도 여행도 못 가니까 차이가 더 벌어져.","r":"5회","s":"성장의문제"},{"q":"과소비란?","t":"___으로 소비를 많이 하는 것","a":["필요한 것 이상"],"full":"필요한 것 이상으로 소비를 많이 하는 것","e":"필요 없는데 자꾸 사는 것.","r":"5회","s":"성장의문제"},{"q":"과소비가 가져오는 문제는?","t":"___가 많이 배출되어 환경이 오염되고 ___이 부족해짐","a":["쓰레기","자원"],"full":"쓰레기가 많이 배출되어 환경이 오염되고 자원이 부족해짐","e":"사면 살수록 버릴 게 늘어나고, 쓸 자원은 줄어들어.","r":"5회","s":"성장의문제"},{"q":"패스트 패션이란?","t":"___에 따라 빠르게 생산하고 짧게 입은 뒤 ___ 옷","a":["유행","버리는"],"full":"유행에 따라 빠르게 생산하고 짧게 입은 뒤 버리는 옷","e":"싸게 사서 몇 번 입고 버리는 옷. 과소비의 대표 예야.","r":"5회","s":"성장의문제"},{"q":"자원 고갈이란?","t":"자원을 ___ 많이 사용해 자원이 모자라게 되는 것","a":["지나치게"],"full":"자원을 지나치게 많이 사용해 자원이 모자라게 되는 것","e":"계속 쓰다 보면 바닥나는 것.","r":"5회","s":"성장의문제"},{"q":"외환 위기란?","t":"___ 우리나라가 ___이 부족해 겪은 경제 위기","a":["1997년","외국 돈"],"full":"1997년 우리나라가 외국 돈이 부족해 겪은 경제 위기","e":"나라에 외국 돈이 바닥나서 휘청한 사건.","r":"5회","s":"성장의문제"},{"q":"외환 위기 때 일어난 일은?","t":"기업이 문을 닫고 ___ 수가 늘면서 국가 경제가 크게 어려워짐","a":["실업자"],"full":"기업이 문을 닫고 실업자 수가 늘면서 국가 경제가 크게 어려워짐","e":"회사들이 줄줄이 망하고 아빠들이 직장을 잃었어.","r":"5회","s":"성장의문제"},{"q":"경제성장 과정의 문제를 해결하려는 노력은?","t":"노사 간 ___와 협의, ___ 마련, ___과 친환경 제품 사용","a":["대화","복지 제도","분리배출"],"full":"노사 간 대화와 협의, 복지 제도 마련, 분리배출과 친환경 제품 사용","e":"서로 대화하고 · 나라가 돕고 · 우리는 덜 버리기.","r":"5회","s":"성장의문제"}],"bl":[{"q":null,"t":"물건이나 서비스의 거래가 이루어지는 곳을 ___(이)라고 한다.","a":["시장"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"시장이 경제활동의 중심이 되는 경제 체제를 ___(이)라고 한다.","a":["시장경제"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"시장경제의 특징은 ___(와)과 ___이다.","a":["자유","경쟁"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"시장경제에서 개인은 자신의 능력과 ___에 따라 직업을 자유롭게 선택할 수 있다.","a":["적성"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"기업은 더 많은 ___(을)를 얻기 위해 다른 기업과 경쟁한다.","a":["이윤"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"기업끼리 상의하여 가격을 정하거나 올리는 것을 ___(이)라고 한다.","a":["담합"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"사실이 아닌 것을 사실인 것처럼 꾸민 광고를 ___ 광고라고 한다.","a":["허위·과장"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"국가는 ___(을)를 만들어 기업의 불공정한 경제활동을 규제한다.","a":["공정거래위원회"],"full":null,"e":null,"r":"1회","s":"시장경제"},{"q":null,"t":"경제활동을 함께하며 살림을 꾸려 가는 생활 공동체를 ___(이)라고 한다.","a":["가계"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"___(을)를 목적으로 물건이나 서비스를 생산·판매하는 조직을 기업이라고 한다.","a":["이윤"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"가계는 기업의 생산 활동에 참여한 대가로 ___(을)를 얻는다.","a":["소득"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"기업은 사람들을 ___하여 일자리를 제공한다.","a":["고용"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"가계와 기업은 ___에서 만나 물건과 서비스를 거래한다.","a":["시장"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"가계와 기업은 서로 도움을 주고받는 ___ 관계이다.","a":["상호 의존"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"가계는 적은 비용으로 가장 큰 ___(을)를 얻도록 합리적 선택을 한다.","a":["만족"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"대가를 주고 사람에게 일을 시키는 것을 ___(이)라고 한다.","a":["고용"],"full":null,"e":null,"r":"2회","s":"가계와 기업"},{"q":null,"t":"노동을 제공하고 그 대가로 임금을 받는 사람을 ___(이)라고 한다.","a":["근로자"],"full":null,"e":null,"r":"3회","s":"근로자와 기업"},{"q":null,"t":"임금, 근로 시간, 휴가 등을 ___(이)라고 한다.","a":["근로 조건"],"full":null,"e":null,"r":"3회","s":"근로자와 기업"},{"q":null,"t":"기업이 근로자에게 지급해야 할 최소한의 임금을 ___(이)라고 한다.","a":["최저 임금"],"full":null,"e":null,"r":"3회","s":"근로자와 기업"},{"q":null,"t":"근로 조건의 개선을 위해 근로자들이 조직하는 단체를 ___(이)라고 한다.","a":["노동조합"],"full":null,"e":null,"r":"3회","s":"근로자와 기업"},{"q":null,"t":"기업이 이윤을 추구할 뿐만 아니라 사회에 긍정적인 영향을 주도록 지켜야 하는 책임을 기업의 ___(이)라고 한다.","a":["사회적 책임"],"full":null,"e":null,"r":"3회","s":"근로자와 기업"},{"q":null,"t":"환경, 사회, 지배 구조를 중요하게 여기는 경영을 ___ 경영이라고 한다.","a":["ESG"],"full":null,"e":null,"r":"3회","s":"근로자와 기업"},{"q":null,"t":"한 나라의 경제 규모가 커지는 것을 ___(이)라고 한다.","a":["경제성장"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"일정 기간에 한 나라 안에서 생산된 물건과 서비스의 총액을 ___(이)라고 한다.","a":["국내총생산"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"한 나라의 국민이 벌어들인 소득을 인구수로 나눈 것을 ___(이)라고 한다.","a":["1인당 국민총소득"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"사람이 태어났을 때 앞으로 생존할 것으로 기대되는 평균 연수를 ___(이)라고 한다.","a":["기대 수명"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"우리나라는 6·25 전쟁 이후 ___ 시간 동안 빠른 경제성장을 이루었다.","a":["짧은"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"경제성장으로 ___ 산업이 발달하여 콘텐츠 수출액이 크게 늘어났다.","a":["문화"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"경제성장으로 해외여행객이 늘어나는 등 ___ 생활이 다양해졌다.","a":["여가"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"경제성장으로 ___ 기회가 확대되어 중학교 취학률이 크게 높아졌다.","a":["교육"],"full":null,"e":null,"r":"4회","s":"경제성장"},{"q":null,"t":"근로자와 기업 경영자 사이의 갈등을 ___(이)라고 한다.","a":["노사 갈등"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"근로자는 높은 ___(와)과 더 나은 근로 환경을 원한다.","a":["임금"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"경제적으로 풍족한 사람과 그렇지 못한 사람 간의 차이를 ___(이)라고 한다.","a":["빈부 격차"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"필요한 것 이상으로 소비를 많이 하는 것을 ___(이)라고 한다.","a":["과소비"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"과소비로 쓰레기가 많이 배출되면 ___ 문제가 발생한다.","a":["환경 오염"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"유행에 따라 빠르게 생산하고 짧게 입은 뒤 버리는 옷을 ___(이)라고 한다.","a":["패스트 패션"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"상품을 생산하는 과정에서 자원을 지나치게 많이 사용하면 ___이 고갈된다.","a":["자원"],"full":null,"e":null,"r":"5회","s":"성장의 문제"},{"q":null,"t":"1997년 우리나라가 외국 돈이 부족해 겪은 경제 위기를 ___(이)라고 한다.","a":["외환 위기"],"full":null,"e":null,"r":"5회","s":"성장의 문제"}]};
+const GLOSS = {"경제 체제": "나라 경제를 어떤 방식으로 굴릴지 정한 틀", "경제활동": "물건을 만들고, 팔고, 사는 모든 활동", "적성": "내가 잘하고 잘 맞는 일", "품질": "물건이 얼마나 좋은지", "서비스": "물건은 아니지만 돈 주고 받는 일 (배달, 미용 등)", "이윤": "회사가 팔아서 번 돈에서 만드는 데 쓴 돈을 뺀 나머지", "소득": "일해서 번 돈, 월급", "상의": "서로 의논하는 것", "규제": "하면 안 되는 걸 법으로 막는 것", "생활 공동체": "같이 살면서 돈을 함께 쓰는 식구", "조직": "어떤 일을 하려고 모인 단체, 회사", "대가": "일한 값으로 받는 것", "고용": "돈 주고 사람을 뽑아 일 시키는 것", "상호 의존": "서로 없으면 안 되는 관계", "합리적": "손해 안 보고 똑똑하게", "노동": "몸이나 머리로 일하는 것", "임금": "일한 대가로 받는 돈", "근로 조건": "얼마 받고, 몇 시간 일하고, 언제 쉬는지", "최저 임금": "이보다 적게 주면 안 되는 최소 금액", "노동조합": "근로자들이 뭉쳐 만든 모임", "협의": "같이 의논해서 정하는 것", "침해": "남의 권리를 망가뜨리는 것", "부당한": "이유 없이 억울하게", "해고": "회사에서 내보내는 것", "지배 구조": "회사를 누가 어떻게 운영하고 감시하는지의 틀", "폐기물": "버리는 쓰레기", "경제 규모": "나라 경제의 덩치", "총액": "전부 더한 금액", "인구수": "사람 수", "기대 수명": "몇 살까지 살 것 같은지의 평균", "보건 정책": "나라가 국민 건강을 챙기는 정책", "콘텐츠": "노래, 드라마, 게임 같은 볼거리", "수출액": "외국에 팔아서 번 돈", "취학률": "학교에 다니는 아이의 비율", "경영자": "회사를 운영하는 사장", "불평등": "사람마다 기회가 고르지 않은 것", "주거 환경": "사는 집과 동네 형편", "자원": "물건을 만드는 데 쓰는 재료 (나무, 석유 등)", "실업자": "일하고 싶은데 직장이 없는 사람", "복지 제도": "나라가 어려운 사람을 돕는 제도", "분리배출": "쓰레기를 종류별로 나눠 버리기", "외환": "외국 돈 (달러 등)", "유행": "그때 많이 입고 많이 하는 것"};
+const RNUM = {"1회":"r1","2회":"r2","3회":"r3","4회":"r4","5회":"r5"};
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('hj2:'+k); return v===null? d : JSON.parse(v);}catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('hj2:'+k, JSON.stringify(v)); }catch(e){} }
+};
+let mode = store.get('mode','qa');
+let filter = store.get('filter','all');
+let ansWay = store.get('ans','pick');   // 'pick' | 'type'
+let wrongSet = new Set(store.get('wrong_'+mode, []));
+let deck = [], idx = 0, sessionWrong = [], finished = false, hintOn = false, glossWord = null;
+const $ = id => document.getElementById(id);
+function cardsFor(m){ return (m==='qa'? DATA.qa : DATA.bl).map((c,i)=>Object.assign({id:m+i}, c)); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function norm(s){ return (s||'').replace(/\s+/g,'').replace(/[ㆍ・]/g,'·').replace(/[%％]/g,'%').trim(); }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+const GLOSS_KEYS = Object.keys(GLOSS).sort((a,b)=>b.length-a.length);
+function glossify(text){
+  let out = esc(text);
+  GLOSS_KEYS.forEach(k=>{ const ek = esc(k); if(out.includes(ek)) out = out.replace(ek, `<span class="gl" data-g="${ek}">${ek}</span>`); });
+  return out;
+}
+function buildDeck(){
+  let all = cardsFor(mode);
+  if(filter==='wrong') all = all.filter(c=>wrongSet.has(c.id));
+  else if(filter!=='all') all = all.filter(c=>c.r===filter);
+  deck = shuffle(all); idx = 0; sessionWrong = []; finished = false; hintOn=false; glossWord=null;
+  render(); window.scrollTo(0,0);
+}
+function makeChoices(c){
+  if(c._choices) return c._choices;
+  const pool = cardsFor(mode).filter(o=>o.id!==c.id).flatMap(o=>o.a);
+  const same = cardsFor(mode).filter(o=>o.id!==c.id && o.r===c.r).flatMap(o=>o.a);
+  c._choices = c.a.map(ans=>{
+    const bad = new Set(c.a.map(norm));
+    const pick = (src)=> shuffle(src.filter(w=>!bad.has(norm(w)) && Math.abs(w.length-ans.length)<=4));
+    let ds = []; const seen = new Set();
+    for(const w of [...pick(same), ...pick(pool)]){ if(ds.length>=3) break; if(seen.has(norm(w))) continue; seen.add(norm(w)); ds.push(w); }
+    return shuffle([ans, ...ds]);
+  });
+  return c._choices;
+}
+function render(){
+  $('modeQa').setAttribute('aria-pressed', mode==='qa');
+  $('modeBl').setAttribute('aria-pressed', mode==='bl');
+  $('ansPick').setAttribute('aria-pressed', ansWay==='pick');
+  $('ansType').setAttribute('aria-pressed', ansWay==='type');
+  document.querySelectorAll('#chips .chip').forEach(b=> b.setAttribute('aria-pressed', b.dataset.r===filter));
+  $('chipWrong').textContent = '틀린 것만' + (wrongSet.size? ` (${wrongSet.size})` : '');
+  const total = deck.length, pos = Math.min(idx, total);
+  $('count').textContent = total? `${finished? total : pos+1} / ${total}` : '0 / 0';
+  $('barFill').style.width = total? (pos/total*100)+'%' : '0%';
+  $('wrongCount').textContent = sessionWrong.length? `틀림 ${sessionWrong.length}` : '';
+  const card = $('card'), act = $('actions');
+  if(!total){
+    card.innerHTML = `<div class="done"><h2>여기엔 문제가 없어요</h2><p>${filter==='wrong'? '틀린 문제가 없어요. 전체부터 풀어 보자.' : '다른 회차를 골라 줘.'}</p></div>`;
+    act.className='actions one'; act.innerHTML = `<button type="button" class="btn primary" id="btnAll">전체 문제로</button>`;
+    $('btnAll').onclick = ()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
+    return;
+  }
+  $('nav').hidden = !total; $('btnNext').disabled = finished;
+  if(finished){ renderDone(); return; }
+  const c = deck[idx];
+  const revealed = !!c._rev;
+  $('btnPrev').disabled = idx===0;
+  $('btnNext').textContent = revealed? '다음 →' : '건너뛰기 →';
+  const tag = `<div class="tag"><b class="${RNUM[c.r]}">${c.r}</b>${c.s}<span style="margin-left:auto">${pos+1} / ${total}</span></div>`;
+  const parts = c.t.split('___');
+  let sent = '';
+  parts.forEach((p,i)=>{ sent += glossify(p); if(i<c.a.length){ sent += `<span class="blank" id="bl${i}">${revealed? esc(c.a[i]) : '&nbsp;'}</span>`; } });
+  const qhead = c.q? `<p class="qtitle">${glossify(c.q)}</p>` : '';
+  const sentHtml = `<p class="q${c.q?' ans':''}">${sent}</p>`;
+  const glossHtml = glossWord && GLOSS[glossWord]? `<div class="glossbox"><b>${esc(glossWord)}</b> — ${esc(GLOSS[glossWord])}</div>` : '';
+  let body = '';
+  if(!revealed){
+    if(ansWay==='type'){
+      body = `<form class="inputs" id="blForm">` + c.a.map((_,i)=>`<label for="in${i}">${c.a.length>1? `빈칸 ${i+1}` : '빈칸에 들어갈 말'}<input id="in${i}" autocomplete="off" autocapitalize="off"></label>`).join('') + `</form>`;
+    } else {
+      const ch = makeChoices(c); c._sel = c._sel || new Array(c.a.length).fill(null);
+      body = `<div class="choices">` + ch.map((opts,i)=>`<div>${c.a.length>1? `<div class="lbl">빈칸 ${i+1}</div>`:''}<div class="cgrid">${opts.map(w=>`<button type="button" class="cbtn" data-b="${i}" data-w="${esc(w)}" aria-pressed="${c._sel[i]===w}">${esc(w)}</button>`).join('')}</div></div>`).join('') + `</div>`;
+    }
+    if(hintOn && c.e) body += `<div class="hintbox"><span class="lbl">힌트 · 쉽게 말하면</span>${esc(c.e)}</div>`;
+    else body += `<div class="hint">${ansWay==='type'? '띄어쓰기는 신경 쓰지 않아도 돼요. ' : ''}점선 친 단어를 누르면 뜻이 나와요.</div>`;
+  } else {
+    if(c._v!==undefined){
+      const n = c._typed.filter((t,i)=>norm(t)===norm(c.a[i])).length;
+      body += `<div class="verdict ${c._v?'ok':'no'}">${c._v? '맞았어요!' : (n? `${c.a.length}개 중 ${n}개 맞음. 틀린 칸을 다시 보자.` : '아쉽다. 정답을 다시 보자.')}</div>`;
+    }
+    if(c.e) body += `<div class="answer"><div class="easy"><span class="lbl">쉽게 말하면</span>${esc(c.e)}</div></div>`;
+  }
+  card.innerHTML = tag + qhead + sentHtml + glossHtml + body;
+  card.querySelectorAll('.gl').forEach(el=> el.onclick = ()=>{ glossWord = (glossWord===el.dataset.g)? null : el.dataset.g; render(); });
+  if(revealed && c._typed){ c._typed.forEach((t,i)=>{ const el=$('bl'+i); if(!el) return; const ok = norm(t)===norm(c.a[i]); el.classList.add(ok?'ok':'no'); if(!ok) el.innerHTML = `${esc(c.a[i])} <small>(${t? esc(t) : '빈칸'})</small>`; }); }
+  if(!revealed){
+    act.className='actions';
+    act.innerHTML = `<button type="button" class="btn ghost" id="btnHint">${c.e? (hintOn? '정답 보기' : '힌트') : '정답 보기'}</button><button type="button" class="btn primary" id="btnCheck">확인</button>`;
+    $('btnCheck').onclick = ()=>check(c);
+    $('btnHint').onclick = ()=>{ if(c.e && !hintOn){ hintOn = true; render(); } else { c._v = undefined; c._typed = null; c._rev = true; render(); } };
+    if(ansWay==='type'){
+      $('blForm').onsubmit = e=>{ e.preventDefault(); const empty = c.a.findIndex((_,i)=>!($('in'+i).value.trim())); if(empty>=0 && document.activeElement && document.activeElement.id!=='in'+(c.a.length-1)){ $('in'+empty).focus(); return; } check(c); };
+      setTimeout(()=>{ const f=$('in0'); if(f) f.focus({preventScroll:true}); }, 0);
+    } else {
+      card.querySelectorAll('.cbtn').forEach(b=> b.onclick = ()=>{ c._sel[+b.dataset.b] = b.dataset.w; if(c._sel.every(x=>x!==null)) check(c); else render(); });
+    }
+  } else if(c._v===true){
+    act.className='actions one'; act.innerHTML = `<button type="button" class="btn ok" id="btnOk">다음 문제</button>`; $('btnOk').onclick = ()=>grade(true);
+  } else {
+    act.className='actions'; act.innerHTML = `<button type="button" class="btn no" id="btnNo">다시 볼래요</button><button type="button" class="btn ok" id="btnOk">알았어요</button>`;
+    $('btnNo').onclick = ()=>grade(false); $('btnOk').onclick = ()=>grade(true);
+  }
+}
+function check(c){
+  c._typed = ansWay==='type' ? c.a.map((_,i)=> ($('in'+i)||{}).value || '') : (c._sel||[]).map(x=>x||'');
+  c._v = c._typed.every((t,i)=> norm(t)===norm(c.a[i]));
+  if(!c._v || hintOn) markWrong(c);
+  c._rev = true; render();
+}
+function markWrong(c){ if(!sessionWrong.includes(c)) sessionWrong.push(c); wrongSet.add(c.id); store.set('wrong_'+mode, [...wrongSet]); }
+function grade(ok){
+  const c = deck[idx];
+  if(ok){ if(!sessionWrong.includes(c)){ wrongSet.delete(c.id); store.set('wrong_'+mode, [...wrongSet]); } }
+  else markWrong(c);
+  c._graded = ok;
+  goNext();
+}
+function goNext(){ hintOn = false; glossWord = null; idx++; if(idx>=deck.length) finished = true; render(); window.scrollTo(0,0); }
+function goPrev(){ if(idx===0) return; hintOn = false; glossWord = null; if(finished){ finished = false; idx = deck.length-1; } else idx--; render(); window.scrollTo(0,0); }
+$('btnNext').onclick = goNext;
+$('btnPrev').onclick = goPrev;
+function renderDone(){
+  const total = deck.length, right = total - sessionWrong.length;
+  const card = $('card'), act = $('actions');
+  const list = sessionWrong.length
+    ? `<p>다시 볼 문제</p><ol class="wronglist">${sessionWrong.map(c=> `<li>${esc(c.q || c.t.replace(/___/g,'(　　)'))} <span class="small">— ${esc(c.full || c.a.join(', '))}</span></li>`).join('')}</ol>`
+    : `<p>전부 맞혔어요. 이 묶음은 끝!</p>`;
+  card.innerHTML = `<div class="done"><h2>한 바퀴 끝</h2><div class="big">${right} / ${total}</div>${list}</div>`;
+  act.className='actions';
+  act.innerHTML = (sessionWrong.length? `<button type="button" class="btn primary" id="btnRedo">틀린 것만 다시 (${sessionWrong.length})</button>` : `<button type="button" class="btn primary" id="btnAgain">한 바퀴 더</button>`) + `<button type="button" class="btn" id="btnNew">다른 회차 고르기</button>`;
+  const redo = $('btnRedo'); if(redo) redo.onclick = ()=>{ filter='wrong'; store.set('filter',filter); buildDeck(); };
+  const again = $('btnAgain'); if(again) again.onclick = buildDeck;
+  $('btnNew').onclick = ()=>{ filter='all'; store.set('filter',filter); buildDeck(); };
+}
+function setMode(m){ if(mode===m) return; mode=m; store.set('mode',mode); wrongSet = new Set(store.get('wrong_'+mode, [])); if(filter==='wrong'&&!wrongSet.size){ filter='all'; store.set('filter',filter); } buildDeck(); }
+$('modeQa').onclick = ()=>setMode('qa');
+$('modeBl').onclick = ()=>setMode('bl');
+$('ansPick').onclick = ()=>{ if(ansWay!=='pick'){ ansWay='pick'; store.set('ans',ansWay); render(); } };
+$('ansType').onclick = ()=>{ if(ansWay!=='type'){ ansWay='type'; store.set('ans',ansWay); render(); } };
+document.querySelectorAll('#chips .chip').forEach(b=> b.onclick = ()=>{ filter = b.dataset.r; store.set('filter',filter); buildDeck(); });
+document.addEventListener('keydown', e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key===' '||e.key==='Enter'){ const o=$('btnOk'); if(o && !$('btnNo')){ e.preventDefault(); o.click(); } }
+  if(e.key==='ArrowLeft'){ goPrev(); }
+  if(e.key==='ArrowRight'){ if(!finished && deck.length) goNext(); }
+  if(e.key==='1'){ const n=$('btnNo'); if(n) n.click(); }
+  if(e.key==='2'){ const o=$('btnOk'); if(o) o.click(); }
+});
+if(filter==='wrong' && !wrongSet.size) filter='all';
+buildDeck();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "현준 사회 2단원 퀴즈",
+  "short_name": "사회 퀴즈",
+  "description": "사회 6-2 2단원(시장경제와 국가 간 거래)을 한 문제씩 풀고 틀린 것만 다시 보는 퀴즈",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f3f5f9",
+  "theme_color": "#2c5fb8",
+  "icons": [
+    {"src": "../icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "../icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "../icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
