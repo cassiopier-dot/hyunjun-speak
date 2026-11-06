@@ -161,6 +161,7 @@ h1{font-family:var(--display);font-size:1.25rem;margin:0;font-weight:400;letter-
   <section class="card" id="card" aria-live="polite"></section>
   <div class="nav" id="nav"><button type="button" id="btnPrev">← 이전</button><button type="button" id="btnNext">건너뛰기 →</button></div>
   <div class="actions" id="actions"></div>
+  <div class="small" id="sync" style="text-align:center;min-height:1.2em"></div>
 </div>
 
 <script>
@@ -171,6 +172,46 @@ const store = {
   get(k, d){ try{ const v = localStorage.getItem('hj2:'+k); return v===null? d : JSON.parse(v);}catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem('hj2:'+k, JSON.stringify(v)); }catch(e){} }
 };
+
+// ---- 공부 기록 전송 (Supabase, 쓰기 전용 공개 키) ----
+const SB_URL = 'https://dtufqylpwphdjmrsaodp.supabase.co';
+const SB_KEY = 'sb_publishable_NsrvbfFRAg9rVorCXV7G_A_iy6FK8mu';
+const devId = (()=>{ let d = store.get('dev',null); if(!d){ d = (crypto.randomUUID? crypto.randomUUID() : 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)); store.set('dev',d); } return d; })();
+let outbox = store.get('outbox', []), sending = false, syncMsg = '', cardStart = Date.now();
+function showSync(){ const el = document.getElementById('sync'); if(el) el.textContent = syncMsg || (outbox.length? `기록 ${outbox.length}개 보낼 차례` : ''); }
+function logAnswer(c, level, hinted){
+  const v = c._v;
+  outbox.push({
+    device_id: devId, deck: mode, card_id: c.id,
+    round_no: parseInt(c.r, 10) || null, answer_way: ansWay,
+    result: v===true? 'correct' : v===false? 'wrong' : 'unknown',
+    self_level: level, hint_used: !!hinted,
+    elapsed_ms: Math.max(0, Math.min(3600000, Date.now()-cardStart)),
+    created_at: new Date().toISOString()
+  });
+  if(outbox.length > 1000) outbox = outbox.slice(-1000);
+  store.set('outbox', outbox); flushLog();
+}
+async function flushLog(){
+  if(sending || !outbox.length) { showSync(); return; }
+  sending = true;
+  const batch = outbox.slice(0, 50);
+  try{
+    const res = await fetch(SB_URL + '/rest/v1/quiz_log', {
+      method:'POST', keepalive:true,
+      headers:{ 'apikey':SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      body: JSON.stringify(batch)
+    });
+    if(res.ok || (res.status>=400 && res.status<500 && res.status!==401 && res.status!==403 && res.status!==408 && res.status!==429)){
+      outbox = outbox.slice(batch.length); store.set('outbox', outbox);
+      syncMsg = res.ok? '' : `기록 보내기 실패(${res.status})`;
+    } else { syncMsg = `기록 보내기 실패(${res.status}) · 나중에 다시 시도`; }
+  }catch(e){ syncMsg = ''; }
+  sending = false; showSync();
+  if(outbox.length && !syncMsg) setTimeout(flushLog, 300);
+}
+window.addEventListener('online', flushLog);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushLog(); });
 let mode = store.get('mode','qa');
 let filter = store.get('filter','all');
 let ansWay = store.get('ans','pick');
@@ -201,13 +242,14 @@ function advance(){
   if(pos < history.length-1){ pos++; }
   else if(queue.length){ history.push(queue.shift()); pos = history.length-1; }
   else { finished = true; render(); return; }
-  const c = history[pos]; c._rev=false; c._v=undefined; c._typed=null; c._sel=null; c._choices=null;
+  const c = history[pos]; c._rev=false; c._v=undefined; c._typed=null; c._sel=null; c._choices=null; cardStart = Date.now();
   render();
 }
-function goPrev(){ if(pos<=0) return; hintOn=false; glossWord=null; if(finished) finished=false; else pos--; const c=history[pos]; c._rev=false; c._v=undefined; c._typed=null; c._sel=null; render(); window.scrollTo(0,0); }
+function goPrev(){ if(pos<=0) return; hintOn=false; glossWord=null; if(finished) finished=false; else pos--; const c=history[pos]; c._rev=false; c._v=undefined; c._typed=null; c._sel=null; cardStart = Date.now(); render(); window.scrollTo(0,0); }
 function goNext(){ if(finished) return; advance(); window.scrollTo(0,0); }
 // 평가: 0 모름 → 3문제 뒤 다시, 1 아리까리 → 8문제 뒤 다시, 2 확실 → 이번 바퀴 끝
 function rate(c, l){
+  logAnswer(c, l, hintOn);
   setLv(c, l);
   // 앞으로 보여줄 목록(history 뒤쪽 + queue)에서 이 카드 제거
   history = history.slice(0, pos+1).concat(history.slice(pos+1).filter(x=>x!==c));
@@ -333,7 +375,7 @@ document.addEventListener('keydown', e=>{
   if(e.key==='2'){ const b=$('rate1'); if(b) b.click(); }
   if(e.key==='3'){ const b=$('rate2'); if(b) b.click(); }
 });
-buildDeck();
+buildDeck(); flushLog();
 </script>
 </body>
 </html>
