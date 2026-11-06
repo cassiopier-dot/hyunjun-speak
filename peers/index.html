@@ -414,7 +414,7 @@ function home(){
   cur=null;
   const data=D(),tt=total(),max=data.length*4;
   app.innerHTML=`
-  <header class="top"><div><p class="muted">PEERS 방식 · 집에서 {P}와 함께 · v6</p><h1>현준이 친구 기술 연습장</h1></div>
+  <header class="top"><div><p class="muted">PEERS 방식 · 집에서 {P}와 함께 · v7</p><h1>현준이 친구 기술 연습장</h1></div>
   <span class="score" aria-label="모은 별">★ ${tt} / ${max}</span></header>
   <div class="lvl" role="tablist" aria-label="단계">
     <button role="tab" aria-selected="${lv===1}" data-l="1"><b>1단계</b><span>기본 · 초등</span></button>
@@ -480,8 +480,8 @@ function pQuiz(pn,s,x){
     if(k===q.a){
       b.classList.add("right");pn.querySelectorAll(".opt").forEach(o=>o.disabled=true);
       if(!(qi in x.quiz))x.quiz[qi]=!tried;save();
-      fb.innerHTML=`<div class="why"><b>맞아요!</b> ${esc(q.w)}</div><div class="row" style="margin-top:12px">${speakBtn("spw","해설 듣기")}<button class="btn" id="nq">다음</button></div>`;
-      const spw=fb.querySelector("#spw");if(spw)spw.onclick=()=>speak("맞아요. "+q.w);if(autoRead())speak("맞아요. "+q.w);
+      fb.innerHTML=`<div class="why"><b>맞아요!</b> ${esc(q.w)}</div><div class="row" style="margin-top:12px"><button class="btn" id="nq">다음</button></div>`;
+      stopSpeak();
       fb.querySelector("#nq").onclick=()=>{stopSpeak();qi++;draw()};
     }else{
       tried=true;b.classList.add("wrong");b.disabled=true;
@@ -506,8 +506,8 @@ function pQuiz2(pn,s,x){
       if(!(qi in x.quiz))x.quiz[qi]=!tried;save();
       fb.innerHTML=`<div class="why"><b>최고의 답!</b> ${esc(q.w)}</div>
       ${q.ask?`<div class="ask"><b>{P}한테 말해 보기</b> ${esc(q.ask)}</div>`:""}
-      <div class="row" style="margin-top:12px">${speakBtn("spw","해설 듣기")}<button class="btn" id="nq">${q.ask?"이유 말했어요, 다음":"다음"}</button></div>`;
-      const spw=fb.querySelector("#spw");if(spw)spw.onclick=()=>speak("최고의 답. "+q.w+(q.ask?". 물어보기. "+q.ask:""));if(autoRead())speak("최고의 답. "+q.w+(q.ask?". 물어보기. "+q.ask:""));
+      <div class="row" style="margin-top:12px"><button class="btn" id="nq">${q.ask?"이유 말했어요, 다음":"다음"}</button></div>`;
+      stopSpeak();
       fb.querySelector("#nq").onclick=()=>{stopSpeak();qi++;draw()};
     }else if(q.ok.includes(k)){
       tried=true;b.classList.add("meh");b.disabled=true;

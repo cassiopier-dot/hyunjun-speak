@@ -261,7 +261,7 @@ function starCount(){return Object.values(st.done).reduce((a,v)=>a+v,0)}
 /* ---------- 홈 ---------- */
 let view="kid";
 function home(){
- app.innerHTML=`<header class="top"><div><p class="muted">현준이 맞춤 · 하루 한두 개 · v6</p><h1>현준이 말하기 연습</h1></div><span class="pill">★ ${starCount()}</span></header>
+ app.innerHTML=`<header class="top"><div><p class="muted">현준이 맞춤 · 하루 한두 개 · v7</p><h1>현준이 말하기 연습</h1></div><span class="pill">★ ${starCount()}</span></header>
  <div class="nav" role="tablist"><button role="tab" aria-selected="${view==="kid"}" data-v="kid">현준이 연습</button><button role="tab" aria-selected="${view==="dad"}" data-v="dad">{P} 코너</button></div>
  <div id="body"></div>`;
  settingsUI(app,home);
