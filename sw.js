@@ -1,5 +1,5 @@
 // 업데이트 우선: 인터넷이 되면 항상 새 버전을 가져오고, 안 되면 저장해 둔 화면을 보여줍니다.
-const CACHE = "hj-speak-v5";
+const CACHE = "hj-speak-v6";
 const FILES = ["./", "./index.html", "./manifest.json", "./peers/", "./peers/index.html", "./peers/manifest.json",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/apple-touch-icon.png"];
 self.addEventListener("install", e => {

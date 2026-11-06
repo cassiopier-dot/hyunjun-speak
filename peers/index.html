@@ -110,6 +110,7 @@ header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:1
 .why.meh{border-color:var(--gold);background:var(--gold-soft)}
 .ask{border:2px dashed var(--teal);border-radius:12px;padding:10px 14px;margin-top:10px}
 .ask b{color:var(--teal)}
+.speak{background:var(--teal-soft);border:none;border-radius:999px;padding:8px 16px;font-weight:700;color:var(--ink);align-self:flex-start;display:inline-flex;gap:6px;align-items:center}
 .gear{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.9rem}
 .setbox{background:var(--surface);border:2px solid var(--teal);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .setbox .row button{background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
@@ -132,18 +133,29 @@ function setP(v){try{localStorage.setItem(PKEY,v)}catch(e){}}
 const sub=s=>String(s).replace(/\{P\}/g,P());
 (()=>{const d=Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML");
   Object.defineProperty(Element.prototype,"innerHTML",{set(v){d.set.call(this,sub(v))},get(){return d.get.call(this)},configurable:true})})();
+
+/* ---------- 읽어주기 ---------- */
+const AKEY="hj-autoread";
+const canSpeak=(()=>{try{return "speechSynthesis" in window&&typeof SpeechSynthesisUtterance!=="undefined"}catch(e){return false}})();
+function autoRead(){try{return localStorage.getItem(AKEY)!=="off"}catch(e){return true}}
+function speak(t){if(!canSpeak)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sub(t).replace(/[“”"()]/g," ").replace(/\s+/g," "));u.lang="ko-KR";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
+const speakBtn=(id,label="듣기")=>canSpeak?`<button type="button" class="speak" id="${id}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9q2 3 0 6M19 6q4 6 0 12"/></svg>${label}</button>`:"";
 function settingsUI(host,after){
   const box=document.createElement("div");box.className="setbox";box.hidden=true;
   const cur=P(),preset=["엄마","아빠"].includes(cur);
   box.innerHTML=`<b>현준이와 같이 연습하는 사람</b><p class="muted" style="font-size:.9rem">앱 안의 호칭이 전부 바뀌어요. 두 앱에 같이 적용돼요.</p>
    <div class="row"><button type="button" data-p="엄마" aria-pressed="${cur==="엄마"}">엄마</button><button type="button" data-p="아빠" aria-pressed="${cur==="아빠"}">아빠</button>
-   <input id="pcustom" type="text" placeholder="직접 입력 (예: 할머니)" value="${preset?"":cur.replace(/"/g,"")}"><button type="button" id="pok">적용</button></div>`;
+   <input id="pcustom" type="text" placeholder="직접 입력 (예: 할머니)" value="${preset?"":cur.replace(/"/g,"")}"><button type="button" id="pok">적용</button></div>
+   ${canSpeak?`<b style="margin-top:6px">읽어주기</b><div class="row"><button type="button" id="ar-on" aria-pressed="${autoRead()}">퀴즈 자동으로 읽기</button><button type="button" id="ar-off" aria-pressed="${!autoRead()}">듣기 버튼만</button></div>`:""}`;
   host.appendChild(box);
   const gear=document.createElement("button");gear.className="gear";gear.type="button";gear.textContent="설정";
   gear.onclick=()=>{box.hidden=!box.hidden};
   (host.querySelector(".top")||host).appendChild(gear);
   box.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{setP(b.dataset.p);after()});
   box.querySelector("#pok").onclick=()=>{const v=box.querySelector("#pcustom").value.trim();if(v){setP(v);after()}};
+  const on=box.querySelector("#ar-on"),off=box.querySelector("#ar-off");
+  if(on){on.onclick=()=>{try{localStorage.setItem(AKEY,"on")}catch(e){}after()};off.onclick=()=>{try{localStorage.setItem(AKEY,"off")}catch(e){}after()}}
 }
 const S = [
  {t:"대화 기술", sub:"정보 주고받기", goal:"묻고, 답하고, 내 얘기도 하면서 친구와 공통 관심사를 찾아요.",
@@ -402,7 +414,7 @@ function home(){
   cur=null;
   const data=D(),tt=total(),max=data.length*4;
   app.innerHTML=`
-  <header class="top"><div><p class="muted">PEERS 방식 · 집에서 {P}와 함께 · v5</p><h1>현준이 친구 기술 연습장</h1></div>
+  <header class="top"><div><p class="muted">PEERS 방식 · 집에서 {P}와 함께 · v6</p><h1>현준이 친구 기술 연습장</h1></div>
   <span class="score" aria-label="모은 별">★ ${tt} / ${max}</span></header>
   <div class="lvl" role="tablist" aria-label="단계">
     <button role="tab" aria-selected="${lv===1}" data-l="1"><b>1단계</b><span>기본 · 초등</span></button>
@@ -421,7 +433,7 @@ function home(){
   app.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;
     if(lv===2&&!unlocked(i)){b.querySelector(".muted").textContent="1단계 이 회기를 먼저 끝내면 열려요";return}open(i)});
 }
-function open(i){cur=i;tab="rule";qi=0;draw();window.scrollTo(0,0)}
+function open(i){stopSpeak();cur=i;tab="rule";qi=0;draw();window.scrollTo(0,0)}
 function draw(){
   const s=D()[cur],x=g(cur);
   const qDone=Object.keys(x.quiz).length===s.quiz.length&&Object.values(x.quiz).every(v=>v);
@@ -432,17 +444,19 @@ function draw(){
   <span class="score">★ ${stars(cur)} / 4</span></header>
   <div class="tabs" role="tablist">${T.map(([k,l,d])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}">${l}${d?' <span class="ok">★</span>':""}</button>`).join("")}</div>
   <div class="panel" id="pn"></div>`;
-  document.getElementById("bk").onclick=home;
+  document.getElementById("bk").onclick=()=>{stopSpeak();home()};
   app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;qi=0;draw()});
   const pn=document.getElementById("pn");
   ({rule:pRule,quiz:lv===1?pQuiz:pQuiz2,role:pRole,mission:pMission})[tab](pn,s,x);
 }
 function pRule(pn,s,x){
   pn.innerHTML=`<div class="goal"><b>목표</b> ${esc(s.goal)}</div>
-  <div class="card"><h3>오늘의 규칙</h3><ol class="rules">${s.rules.map(r=>`<li>${esc(r)}</li>`).join("")}</ol></div>
-  <div class="card"><span class="tag">외워둘 한 마디</span><p class="say">“${esc(s.key)}”</p><p class="hint">소리 내서 세 번 말해 보세요.</p></div>
+  <div class="card"><h3>오늘의 규칙</h3><ol class="rules">${s.rules.map(r=>`<li>${esc(r)}</li>`).join("")}</ol>${speakBtn("sp1","규칙 듣기")}</div>
+  <div class="card"><span class="tag">외워둘 한 마디</span><p class="say">“${esc(s.key)}”</p><p class="hint">소리 내서 세 번 말해 보세요.</p>${speakBtn("sp2","한 마디 듣기")}</div>
   <div class="row"><button class="btn" id="ok">${x.rule?"다 읽었어요 ★":"다 읽었어요"}</button></div>`;
-  pn.querySelector("#ok").onclick=()=>{x.rule=true;save();tab="quiz";draw()};
+  const sp1=pn.querySelector("#sp1");if(sp1)sp1.onclick=()=>speak("목표. "+s.goal+". 오늘의 규칙. "+s.rules.map((r,i)=>(i+1)+"번. "+r).join(". "));
+  const sp2=pn.querySelector("#sp2");if(sp2)sp2.onclick=()=>speak(s.key);
+  pn.querySelector("#ok").onclick=()=>{stopSpeak();x.rule=true;save();tab="quiz";draw()};
 }
 function quizEnd(pn,s,x){
   const c=Object.values(x.quiz).filter(Boolean).length;
@@ -455,16 +469,20 @@ function quizEnd(pn,s,x){
 function pQuiz(pn,s,x){
   if(qi>=s.quiz.length)return quizEnd(pn,s,x);
   const q=s.quiz[qi];
-  pn.innerHTML=`<div class="card"><span class="tag">상황 ${qi+1} / ${s.quiz.length}</span><p class="sit">${esc(q.s)}</p>
+  pn.innerHTML=`<div class="card"><span class="tag">상황 ${qi+1} / ${s.quiz.length}</span><p class="sit">${esc(q.s)}</p>${speakBtn("sp")}
   <div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join("")}</div><div id="fb"></div></div>`;
+  const qt=q.s+". "+q.o.map((o,k)=>(k+1)+"번. "+o).join(". ");
+  const sp=pn.querySelector("#sp");if(sp)sp.onclick=()=>speak(qt);
+  if(autoRead())speak(qt);
   let tried=false;
   pn.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
     const k=+b.dataset.k,fb=pn.querySelector("#fb");
     if(k===q.a){
       b.classList.add("right");pn.querySelectorAll(".opt").forEach(o=>o.disabled=true);
       if(!(qi in x.quiz))x.quiz[qi]=!tried;save();
-      fb.innerHTML=`<div class="why"><b>맞아요!</b> ${esc(q.w)}</div><div class="row" style="margin-top:12px"><button class="btn" id="nq">다음</button></div>`;
-      fb.querySelector("#nq").onclick=()=>{qi++;draw()};
+      fb.innerHTML=`<div class="why"><b>맞아요!</b> ${esc(q.w)}</div><div class="row" style="margin-top:12px">${speakBtn("spw","해설 듣기")}<button class="btn" id="nq">다음</button></div>`;
+      const spw=fb.querySelector("#spw");if(spw)spw.onclick=()=>speak("맞아요. "+q.w);if(autoRead())speak("맞아요. "+q.w);
+      fb.querySelector("#nq").onclick=()=>{stopSpeak();qi++;draw()};
     }else{
       tried=true;b.classList.add("wrong");b.disabled=true;
       fb.innerHTML=`<div class="why no"><b>다시 생각해 볼까?</b> 이렇게 하면 친구나 상대가 어떤 기분일지 떠올려 보세요.</div>`;
@@ -475,8 +493,11 @@ function pQuiz2(pn,s,x){
   if(qi>=s.quiz.length)return quizEnd(pn,s,x);
   const q=s.quiz[qi];
   pn.innerHTML=`<div class="card"><span class="tag ${q.sub?"subtag":""}">${q.sub?"속뜻 읽기":"상황"} ${qi+1} / ${s.quiz.length}</span><p class="sit">${esc(q.s)}</p>
-  ${q.sub?`<p class="hint">이 말이나 행동의 진짜 뜻은 뭘까?</p>`:`<p class="hint">괜찮은 답이 여러 개일 수 있어. 제일 좋은 답을 골라 봐.</p>`}
+  ${q.sub?`<p class="hint">이 말이나 행동의 진짜 뜻은 뭘까?</p>`:`<p class="hint">괜찮은 답이 여러 개일 수 있어. 제일 좋은 답을 골라 봐.</p>`}${speakBtn("sp")}
   <div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join("")}</div><div id="fb"></div></div>`;
+  const qt=q.s+". "+(q.sub?"이 말의 진짜 뜻은 뭘까? ":"제일 좋은 답은? ")+q.o.map((o,k)=>(k+1)+"번. "+o).join(". ");
+  const sp=pn.querySelector("#sp");if(sp)sp.onclick=()=>speak(qt);
+  if(autoRead())speak(qt);
   let tried=false;
   pn.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
     const k=+b.dataset.k,fb=pn.querySelector("#fb");
@@ -485,8 +506,9 @@ function pQuiz2(pn,s,x){
       if(!(qi in x.quiz))x.quiz[qi]=!tried;save();
       fb.innerHTML=`<div class="why"><b>최고의 답!</b> ${esc(q.w)}</div>
       ${q.ask?`<div class="ask"><b>{P}한테 말해 보기</b> ${esc(q.ask)}</div>`:""}
-      <div class="row" style="margin-top:12px"><button class="btn" id="nq">${q.ask?"이유 말했어요, 다음":"다음"}</button></div>`;
-      fb.querySelector("#nq").onclick=()=>{qi++;draw()};
+      <div class="row" style="margin-top:12px">${speakBtn("spw","해설 듣기")}<button class="btn" id="nq">${q.ask?"이유 말했어요, 다음":"다음"}</button></div>`;
+      const spw=fb.querySelector("#spw");if(spw)spw.onclick=()=>speak("최고의 답. "+q.w+(q.ask?". 물어보기. "+q.ask:""));if(autoRead())speak("최고의 답. "+q.w+(q.ask?". 물어보기. "+q.ask:""));
+      fb.querySelector("#nq").onclick=()=>{stopSpeak();qi++;draw()};
     }else if(q.ok.includes(k)){
       tried=true;b.classList.add("meh");b.disabled=true;
       fb.innerHTML=`<div class="why meh"><b>나쁘지 않아.</b> 그런데 관계를 더 잘 지키는 답이 있어. 한 번 더 골라 봐.</div>`;
@@ -498,10 +520,11 @@ function pQuiz2(pn,s,x){
 }
 function pRole(pn,s,x){
   pn.innerHTML=`<div class="card"><h3>{P}랑 역할극</h3><p class="hint">{P}가 노란 칸 대사를 읽고, 현준이는 괄호 안 미션대로 자기 말로 해 보세요. 예시는 참고만!</p>
-  ${s.role.map(([w,t])=>`<div class="line"><span class="who ${w}">${w==="dad"?"{P}":"현준"}</span><p class="txt">${esc(t)}</p></div>`).join("")}</div>
+  ${s.role.map(([w,t],i)=>`<div class="line"><span class="who ${w}">${w==="dad"?"{P}":"현준"}</span><p class="txt">${esc(t)}${w==="dad"&&canSpeak?` <button type="button" class="speak" data-say="${i}" style="padding:4px 10px;font-size:.85rem">듣기</button>`:""}</p></div>`).join("")}</div>
   <div class="parent"><b>{P} 코칭 팁</b> ${esc(s.tip)}</div>
   <div class="row"><button class="btn" id="ok">${x.role?"역할극 완료 ★":"역할극 다 했어요"}</button></div>`;
-  pn.querySelector("#ok").onclick=()=>{x.role=true;save();tab="mission";draw()};
+  pn.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(s.role[+b.dataset.say][1]));
+  pn.querySelector("#ok").onclick=()=>{stopSpeak();x.role=true;save();tab="mission";draw()};
 }
 function pMission(pn,s,x){
   pn.innerHTML=`<div class="card"><h3>이번 주 미션</h3><p class="hint">학교나 집에서 진짜로 해 보고, 한 것을 체크해요.</p>
